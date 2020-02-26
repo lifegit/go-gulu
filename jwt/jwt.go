@@ -11,13 +11,8 @@ import (
 	"time"
 )
 
-type User struct {
-	Id       uint   `json:"id"`
-	Username string `json:"username"`
-}
-
 type Claims struct {
-	User
+	User interface{}
 	jwt.StandardClaims
 }
 
@@ -31,15 +26,14 @@ type JwtObj struct {
 // https://studygolang.com/articles/13062
 
 // GenerateToken generate tokens used for auth
-func GenerateToken(m *User, appName string, appSecret string, key string, expireHour int) (*JwtObj, error) {
+func GenerateToken(m interface{}, appName string, appSecret string, key string, expireHour int) (*JwtObj, error) {
 	expireAfterTime := time.Hour * time.Duration(expireHour)
 	expireTime := time.Now().Add(expireAfterTime)
 	stdClaims := Claims{
-		*m,
+		m,
 		jwt.StandardClaims{
 			ExpiresAt: expireTime.Unix(),
 			IssuedAt:  time.Now().Unix(),
-			Id:        fmt.Sprintf("%d", m.Id),
 			Issuer:    appName,
 		},
 	}
@@ -56,7 +50,7 @@ func GenerateToken(m *User, appName string, appSecret string, key string, expire
 }
 
 // JwtParseUser parsing token
-func Parse(tokenString string, appName string, appSecret string) (*User, error) {
+func Parse(tokenString string, appName string, appSecret string) (interface{}, error) {
 	if tokenString == "" {
 		return nil, errors.New("no token is found in Authorization Bearer")
 	}
