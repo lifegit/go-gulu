@@ -22,12 +22,10 @@ func New(key string, c *redis.Client, expireTime time.Duration) *Count {
 		expireTime: expireTime,
 	}
 }
-
 // get
 func (p *Count) Get() (int, error) {
 	return p.redis.Get(p.key).Int()
 }
-
 // add
 func (p *Count) Add() (int64, error) {
 	num, err := p.redis.Incr(p.key).Result()
@@ -39,9 +37,11 @@ func (p *Count) Add() (int64, error) {
 	}
 
 	return num, nil
-
 }
-
+// set
+func (p *Count) Set(s int) error {
+	return p.redis.Set(p.key, s, p.expireTime).Err()
+}
 // del
 func (p *Count) Destroy() {
 	p.redis.Del(p.key)

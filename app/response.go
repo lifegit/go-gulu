@@ -53,3 +53,7 @@ func ParseParamID(c *gin.Context) (uint, error) {
 	}
 	return uint(parseId), nil
 }
+
+func ParseParamIDString(c *gin.Context) string {
+	return c.Param("id")
+}
