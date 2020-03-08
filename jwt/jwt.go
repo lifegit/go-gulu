@@ -73,7 +73,7 @@ func Parse(tokenString string, appName string, appSecret string) (interface{}, e
 	}
 
 	if claims, ok := tokenClaims.Claims.(*Claims); ok && tokenClaims.Valid {
-		return &claims.User, nil
+		return claims.User, nil
 	}
 
 	return nil, err

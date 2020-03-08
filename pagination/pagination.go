@@ -48,23 +48,21 @@ func (p *Pagination) AllowFiltered(tableName string, data *map[string]interface{
 	if data != nil {
 		for key, val := range *data {
 			if arrayconv.StringIn(key, filtered) {
-				length := 0
 				if arr, ok := val.([]interface{}); ok {
-					length = len(arr)
+					length := len(arr)
+					if length > 1 {
+						p.DbUtils.Where.In = append(p.DbUtils.Where.In, dbUtils.In{
+							Field: fmt.Sprintf("%s.`%s`", tableName, key),
+							In:    val,
+						})
+					} else if length == 1 {
+						p.DbUtils.Where.Compare = append(p.DbUtils.Where.Compare, dbUtils.Compare{
+							Field: fmt.Sprintf("%s.`%s`", tableName, key),
+							Type:  dbUtils.CompareEqual,
+							Text:  val,
+						})
+					}
 				}
-				if length == 1 {
-					p.DbUtils.Where.Compare = append(p.DbUtils.Where.Compare, dbUtils.Compare{
-						Field: fmt.Sprintf("%s.`%s`", tableName, key),
-						Type:  dbUtils.CompareEqual,
-						Text:  val,
-					})
-				} else {
-					p.DbUtils.Where.In = append(p.DbUtils.Where.In, dbUtils.In{
-						Field: fmt.Sprintf("%s.`%s`", tableName, key),
-						In:    val,
-					})
-				}
-
 			} else if sea := arrayGet(key, searched); sea != nil {
 				if sea.Vague {
 					p.DbUtils.Where.Like = append(p.DbUtils.Where.Like, dbUtils.Like{
