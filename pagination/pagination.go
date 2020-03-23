@@ -38,6 +38,7 @@ func New(page uint) *Pagination {
 	}
 }
 
+
 ////假设接收来自客户端的数据
 //ma:= make(map[string]interface{})
 //ma["projectid"] = []int{1}
