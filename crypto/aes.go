@@ -9,6 +9,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"errors"
 )
 
 //aes加密
@@ -54,7 +55,7 @@ func AesEncrypt(origData []byte, key []byte, iv []byte, paddingFunc func([]byte,
 	return crypted, nil
 }
 
-func AesDecrypt(crypted, key []byte, iv []byte, unPaddingFunc func([]byte) []byte) ([]byte, error) {
+func AesDecrypt(crypted, key []byte, iv []byte, unPaddingFunc func([]byte) (error, []byte) ) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
@@ -62,8 +63,8 @@ func AesDecrypt(crypted, key []byte, iv []byte, unPaddingFunc func([]byte) []byt
 	blockMode := cipher.NewCBCDecrypter(block, iv)
 	origData := make([]byte, len(crypted))
 	blockMode.CryptBlocks(origData, crypted)
-	origData = unPaddingFunc(origData)
-	return origData, nil
+	err, origData = unPaddingFunc(origData)
+	return origData, err
 }
 
 func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
@@ -72,11 +73,11 @@ func PKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	return append(ciphertext, padtext...)
 }
 
-func PKCS5UnPadding(origData []byte) []byte {
+func PKCS5UnPadding(origData []byte) (err error, byte []byte) {
 	length := len(origData)
 	unpadding := int(origData[length-1])
 	if length < unpadding {
-		return []byte("unpadding error")
+		return errors.New("unpadding error"), byte
 	}
-	return origData[:(length - unpadding)]
+	return nil, origData[:(length - unpadding)]
 }
