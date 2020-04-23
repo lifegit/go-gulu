@@ -15,7 +15,7 @@ func tag(tag, mobile string) string {
 
 // 验证一个手机号
 func MobileValidate(mobile string) bool {
-	match, _ := regexp.MatchString(`^[1][3,4,5,7,8,9][0-9]{9}$`, mobile)
+	match, _ := regexp.MatchString(`^[1][3,4,5,6,7,8,9][0-9]{9}$`, mobile)
 	return match
 }
 
