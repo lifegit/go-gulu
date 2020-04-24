@@ -12,7 +12,7 @@ import (
 
 func TestName(t *testing.T) {
 	e := NewEventGroup()
-	id := e.Register(time.Second * 3, 3 ,"hello", func(data interface{}) {
+	id := e.Register(time.Second*3, 3, "hello", func(data interface{}) {
 		fmt.Println(data)
 	})
 

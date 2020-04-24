@@ -45,7 +45,6 @@ func TestName(t *testing.T) {
 	fmt.Println("total line:", linesum)
 }
 
-
 // compute souce file line number
 func codeLineSum(root string, done chan bool) {
 	var goes int              // children goroutines number

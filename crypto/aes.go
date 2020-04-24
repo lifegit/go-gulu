@@ -55,7 +55,7 @@ func AesEncrypt(origData []byte, key []byte, iv []byte, paddingFunc func([]byte,
 	return crypted, nil
 }
 
-func AesDecrypt(crypted, key []byte, iv []byte, unPaddingFunc func([]byte) (error, []byte) ) ([]byte, error) {
+func AesDecrypt(crypted, key []byte, iv []byte, unPaddingFunc func([]byte) (error, []byte)) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err

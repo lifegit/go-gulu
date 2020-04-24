@@ -25,8 +25,8 @@ func NewEventGroup() WaitGroup {
 
 type event struct {
 	data interface{}
-	len   int
-	c chan int
+	len  int
+	c    chan int
 }
 
 type Event struct {
@@ -39,7 +39,7 @@ func (w *Event) Register(timeout time.Duration, count int, data interface{}, cal
 	w.l.Lock()
 	defer w.l.Unlock()
 
-	ev := event{data: data, len: count, c: make(chan int,1)}
+	ev := event{data: data, len: count, c: make(chan int, 1)}
 	for true {
 		id = uint64(time.Now().UnixNano())
 		if _, ok := w.m[id]; !ok {
@@ -66,10 +66,10 @@ func (w *Event) Register(timeout time.Duration, count int, data interface{}, cal
 func (w *Event) trigger(id uint64, tr bool) {
 	w.l.Lock()
 	ev := w.m[id]
-	if ev.c != nil{
+	if ev.c != nil {
 		ev.len--
 		w.m[id] = ev
-		if ev.len <= 0 || tr{
+		if ev.len <= 0 || tr {
 			ev.c <- ev.len
 			close(ev.c)
 			delete(w.m, id)

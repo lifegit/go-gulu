@@ -21,7 +21,7 @@ func JsonErrorData(c *gin.Context, data interface{}, msg string) {
 func JsonData(c *gin.Context, data interface{}) {
 	c.JSON(http.StatusOK, data)
 }
-func JsonPagination(c *gin.Context, list interface{}, page *pagination.Page) {
+func JsonPagination(c *gin.Context, list interface{}, page pagination.Page) {
 	c.JSON(http.StatusOK, gin.H{"list": list, "page": page})
 }
 
