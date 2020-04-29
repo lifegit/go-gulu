@@ -42,8 +42,8 @@ type In struct {
 // field >= start ANd field <= end
 type Range struct {
 	Field string
-	Start int
-	End   int
+	Start int64
+	End   int64
 }
 
 // field like %Text%

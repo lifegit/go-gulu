@@ -32,9 +32,9 @@ func Tab(tab ...T) []string {
 	for _, item := range tab {
 		for _, val := range item.Fields {
 			if val.AsName == "" {
-				res = append(res, fmt.Sprintf("`%s`.`%s`", item.TableName, val.Name))
+				res = append(res, fmt.Sprintf("`%s`.%s", item.TableName, val.Name))
 			} else {
-				res = append(res, fmt.Sprintf("`%s`.`%s` as `%s`", item.TableName, val.Name, val.AsName))
+				res = append(res, fmt.Sprintf("`%s`.%s as `%s`", item.TableName, val.Name, val.AsName))
 			}
 		}
 	}

@@ -46,7 +46,7 @@ func (p *Data) SetData(m map[string]interface{}) (bool, error) {
 	}
 
 	if !p.isTtl {
-		if res, err := p.redis.PTTL(p.personKey).Result(); res == -1 && err == nil {
+		if res, err := p.redis.PTTL(p.personKey).Result(); err == nil && res.Seconds() == -0.001 {
 			p.redis.Expire(p.personKey, p.time)
 		}
 		p.isTtl = true
