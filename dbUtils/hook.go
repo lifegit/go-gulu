@@ -37,7 +37,7 @@ func (*TimeFieldsModel) HookUpdateTimeStampForCreateCallback(scope *gorm.Scope) 
 // 更新钩子在持久化之前
 func (*TimeFieldsModel) HookUpdateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
-		scope.SetColumn("TimeUpdated", time.Now().Unix())
+		scope.SetColumn("TimeUpdated", time.Now().UnixNano()/1e6)
 	}
 }
 
