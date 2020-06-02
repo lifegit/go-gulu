@@ -110,6 +110,26 @@ func (utils *DbUtils) CrudUpdateOne(updates map[string]interface{}, where interf
 	}
 	return nil
 }
+func (utils *DbUtils) CrudUpdateMany(updates map[string]interface{}, where interface{}, defaultDb *gorm.DB) (err error) {
+	tx := InitDb(utils, defaultDb)
+	if utils != nil {
+		tx = utils.GetWhere(tx)
+		if up := utils.GetUpdate(); up != nil {
+			for k, v := range *up {
+				updates[k] = v
+			}
+		}
+	}
+
+	tx = tx.Debug().Model(where).Updates(updates)
+	if err = tx.Error; err != nil {
+		return
+	}
+	if tx.RowsAffected <= 0 {
+		return errors.New("resource is not found")
+	}
+	return nil
+}
 
 func (utils *DbUtils) CrudDelete(where interface{}, defaultDb *gorm.DB) error {
 	//WARNING When delete a record, you need to ensure it’s primary field has value, and GORM will use the primary key to delete the record, if primary field’s blank, GORM will delete all records for the model
