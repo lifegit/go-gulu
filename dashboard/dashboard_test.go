@@ -21,7 +21,7 @@ var (
 
 var (
 	// the dir where souce file stored
-	rootPath string = "/Users/yxs/Project/CloudDream/control/server/v2/dream-control/often"
+	rootPath string = "/Users/yxs/Project/CloudDream/control/v3/server/services"
 	// exclude these sub dirs
 	nodirs [5]string = [...]string{"/node_modules", "/.umi", "/goplayer", "/uniqush", "/code.google.com"}
 	// the suffix name you care
