@@ -960,38 +960,41 @@ func (r *ResultApi) Setup() {
 
 func (r *ResultApi) Running() {
 	appLogging.Log.Infof("http result server at listening %s", r.Addr)
+	server := &http.Server{
+		Addr:           fmt.Sprintf(":%d", conf.GetInt("server.port")),
+		Handler:        r.Gin,
+		ReadTimeout:    time.Second * time.Duration(conf.GetInt("server.readTimeout")),
+		WriteTimeout:   time.Second * time.Duration(conf.GetInt("server.writeTimeout")),
+		MaxHeaderBytes: 1 << 20,
+	}
 	if conf.GetBool("enable.https") {
 		// https
 		if err := autotls.Run(r.Gin, r.Addr); err != nil {
 			appLogging.Log.WithError(err).Fatal("https result server fail run !")
 		}
+		//if err := server.ListenAndServeTLS("cert.pem", "key.pem"); err != nil {
+		//	appLogging.Log.Errorf("https result server is run err: %v!", err)
+		//}
 	} else {
 		// http
-		server := &http.Server{
-			Addr:           fmt.Sprintf(":%d", conf.GetInt("server.port")),
-			Handler:        r.Gin,
-			ReadTimeout:    time.Second * time.Duration(conf.GetInt("server.readTimeout")),
-			WriteTimeout:   time.Second * time.Duration(conf.GetInt("server.writeTimeout")),
-			MaxHeaderBytes: 1 << 20,
-		}
 		if err := server.ListenAndServe(); err != nil {
 			appLogging.Log.Errorf("http result server is run err: %v!", err)
 		}
-
-		// endless
-		//// If you want Graceful Restart, you need a Unix system and download github.com/fvbock/endless
-		//endless.DefaultReadTimeOut = readTimeout
-		//endless.DefaultWriteTimeOut = writeTimeout
-		//endless.DefaultMaxHeaderBytes = maxHeaderBytes
-		//serverNew := endless.NewServer(endPoint, routersInit)
-		//serverNew.BeforeBegin = func(add string) {
-		//	logging.Logger.Info("Actual pid is %d", syscall.Getpid())
-		//}
-		//err = serverNew.ListenAndServe()
-		//if err != nil {
-		//	logging.Logger.Error("server err: %v", err)
-		//}
 	}
+
+	//// endless
+	//// If you want Graceful Restart, you need a Unix system and download github.com/fvbock/endless
+	//endless.DefaultReadTimeOut = readTimeout
+	//endless.DefaultWriteTimeOut = writeTimeout
+	//endless.DefaultMaxHeaderBytes = maxHeaderBytes
+	//serverNew := endless.NewServer(endPoint, routersInit)
+	//serverNew.BeforeBegin = func(add string) {
+	//	logging.Logger.Info("Actual pid is %d", syscall.Getpid())
+	//}
+	//err = serverNew.ListenAndServe()
+	//if err != nil {
+	//	appLogging.Logger.Error("server err: %v", err)
+	//}
 }
 type JwtUser struct {
 	Id       uint
