@@ -18,7 +18,7 @@ type DbUtils struct {
 	Offset  *DbOffset
 }
 
-func New(utils *DbUtils, defaultDb *gorm.DB) *gorm.DB {
+func InitDb(utils *DbUtils, defaultDb *gorm.DB) *gorm.DB {
 	if utils != nil && utils.Db != nil {
 		return utils.Db
 	} else {

@@ -11,7 +11,7 @@ import (
 )
 
 func (d *DbUtils) CrudOne(fields []string, where interface{}, one interface{}, defaultDb *gorm.DB) error {
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = tx.Where(where)
 	tx = d.GetWhere(tx)
 	tx = d.GetOrder(tx)
@@ -31,7 +31,7 @@ func (d *DbUtils) CrudOne(fields []string, where interface{}, one interface{}, d
 }
 
 func (d *DbUtils) CrudAll(fields []string, where interface{}, list interface{}, defaultDb *gorm.DB) error {
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = tx.Where(where)
 	tx = d.GetWhere(tx)
 	tx = d.GetOrder(tx)
@@ -44,7 +44,7 @@ func (d *DbUtils) CrudAll(fields []string, where interface{}, list interface{}, 
 }
 
 func (d *DbUtils) CrudAllPage(fields []string, where interface{}, list interface{}, limit uint, defaultDb *gorm.DB) (count uint, err error) {
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = tx.Model(where).Where(where)
 	tx = d.GetWhere(tx)
 	tx = d.GetOffSet(tx)
@@ -64,7 +64,7 @@ func (d *DbUtils) CrudAllPage(fields []string, where interface{}, list interface
 }
 
 func (d *DbUtils) CrudCount(where interface{}, defaultDb *gorm.DB) (count uint, err error) {
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = tx.Model(where).Where(where)
 	tx = d.GetWhere(tx)
 
@@ -72,7 +72,7 @@ func (d *DbUtils) CrudCount(where interface{}, defaultDb *gorm.DB) (count uint, 
 	return
 }
 func (d *DbUtils) CrudSum(field string, where interface{}, defaultDb *gorm.DB) (sum float32, err error) {
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = tx.Model(where).Where(where)
 	tx = d.GetWhere(tx)
 
@@ -82,7 +82,7 @@ func (d *DbUtils) CrudSum(field string, where interface{}, defaultDb *gorm.DB) (
 	return
 }
 func (d *DbUtils) CrudUpdate(updates map[string]interface{}, where interface{}, defaultDb *gorm.DB, limit1 bool) (err error) {
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = d.GetWhere(tx)
 	if up := d.GetUpdate(); up != nil {
 		for k, v := range *up {
@@ -107,7 +107,7 @@ func (d *DbUtils) CrudUpdate(updates map[string]interface{}, where interface{}, 
 func (d *DbUtils) CrudDelete(where interface{}, defaultDb *gorm.DB) error {
 	//WARNING When delete a record, you need to ensure it’s primary field has value, and GORM will use the primary key to delete the record, if primary field’s blank, GORM will delete all records for the model
 	//primary key must be not zero value
-	tx := New(d, defaultDb)
+	tx := InitDb(d, defaultDb)
 	tx = tx.Where(where)
 	tx = d.GetWhere(tx)
 

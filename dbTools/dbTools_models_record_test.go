@@ -95,7 +95,7 @@ func (m *TbRecordRechargeAgentInfo) Create() (err error) {
 
 	m.Id = 0
 
-	return dbUtils.New(m.DbUtils, db).Create(m).Error
+	return dbUtils.InitDb(m.DbUtils, db).Create(m).Error
 }
 
 //Update

@@ -80,10 +80,10 @@ func (m *TbAdminsInfo) All(fields []string) (list *[]TbAdminsInfo, err error) {
 }
 
 //AllPage
-func (m *TbAdminsInfo) AllPage(fields []string, list interface{}, q *pagination.Pagination) (page pagination.Page, err error) {
-	count, err := q.DbUtils.CrudAllPage(fields, m, list, q.Limit, db)
+func (m *TbAdminsInfo) AllPage(fields []string, list interface{}, pageSize uint) (page pagination.Page, err error) {
+	count, err := m.DbUtils.CrudAllPage(fields, m, list, pageSize, db)
 
-	return pagination.Page{Total: count, Size: q.Limit}, err
+	return pagination.Page{Total: count, Size: pageSize}, err
 }
 
 //Create
@@ -95,13 +95,13 @@ func (m *TbAdminsInfo) Create() (err error) {
 
 	m.Id = 0
 
-	return dbUtils.New(m.DbUtils, db).Create(m).Error
+	return dbUtils.InitDb(m.DbUtils, db).Create(m).Error
 }
 
 //Update
 func (m *TbAdminsInfo) Update(limit1 bool) (err error) {
-	if m.Id == 0 {
-		return errors.New("id is not found")
+	if m.Id == 0 && m.DbUtils.WhereIsEmpty() {
+		return errors.New("update condition is not exist")
 	}
 
 	where := TbAdminsInfo{Id: m.Id}
@@ -112,7 +112,7 @@ func (m *TbAdminsInfo) Update(limit1 bool) (err error) {
 
 //Delete
 func (m *TbAdminsInfo) Delete() error {
-	if m.Id == 0 {
+	if m.Id == 0 && m.DbUtils.WhereIsEmpty() {
 		return errors.New("resource must not be zero value")
 	}
 	return m.DbUtils.CrudDelete(m, db)

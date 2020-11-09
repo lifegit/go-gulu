@@ -293,7 +293,7 @@ package models
 
 import (
 	"errors"
-	"go-gulu/dbUtils"
+	"go-gulu/dbTools/dbUtils"
 	"go-gulu/pagination"
 	"go-gulu/paramValidator"
 	"go-gulu/structure"
@@ -331,10 +331,10 @@ func (m *{{.ModelName}}) All(fields []string) (list *[]{{.ModelName}}, err error
 	return
 }
 //AllPage
-func (m *{{.ModelName}}) AllPage(fields []string, list interface{}, q *pagination.Pagination) (page pagination.Page, err error) {
-	count, err := q.DbUtils.CrudAllPage(fields, m, list, q.Limit, db)
+func (m *{{.ModelName}}) AllPage(fields []string, list interface{}, pageSize uint) (page pagination.Page, err error) {
+	count, err := m.DbUtils.CrudAllPage(fields, m, list, pageSize, db)
 
-	return pagination.Page{Total: count, Size: q.Limit}, err
+	return pagination.Page{Total: count, Size: pageSize}, err
 }
 //Create
 func (m *{{.ModelName}}) Create() (err error) {
@@ -348,19 +348,19 @@ func (m *{{.ModelName}}) Create() (err error) {
 	return dbUtils.InitDb(m.DbUtils, db).Create(m).Error
 }
 //Update
-func (m *{{.ModelName}}) Update() (err error) {
-	if m.Id == 0 {
-		return errors.New("id is not found")
+func (m *{{.ModelName}}) Update(limit1 bool) (err error) {
+	if m.Id == 0 && m.DbUtils.WhereIsEmpty() {
+		return errors.New("update condition is not exist")
 	}
 
 	where := {{.ModelName}}{Id: m.Id}
 	m.Id = 0
 
-	return m.DbUtils.CrudUpdateOne(structure.StructToMap(*m), where, db)
+	return m.DbUtils.CrudUpdate(structure.StructToMap(*m), where, db, limit1)
 }
 //Delete
 func (m *{{.ModelName}}) Delete() error {
-	if m.Id == 0 {
+	if m.Id == 0 && m.DbUtils.WhereIsEmpty() {
 		return errors.New("resource must not be zero value")
 	}
 	return m.DbUtils.CrudDelete(m, db)
@@ -400,7 +400,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"go-gulu/app"
-	"go-gulu/dbUtils"
+	"go-gulu/dbTools/dbUtils"
 	"go-gulu/pagination"
 )
 
@@ -448,7 +448,7 @@ func {{.HandlerName}}Update(c *gin.Context) {
 		return
 	}
 
-	err = mdl.Update()
+	err = mdl.Update(true)
 	if app.HandleError(c, err) {
 		return
 	}
@@ -655,7 +655,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"go-gulu/dbUtils"
+	"go-gulu/dbTools/dbUtils"
 	"strings"
 )
 
@@ -688,7 +688,7 @@ func initMysqlDb() (db *gorm.DB) {
 		//db.SetLogger(logger)
 	}
 	//db.AutoMigrate()
-	var field dbUtils.TimeFieldsModel
+	var field hooks.TimeFieldsModel
 	db.Callback().Create().Replace("gorm:update_time_stamp", field.HookUpdateTimeStampForCreateCallback)
 	db.Callback().Update().Replace("gorm:update_time_stamp", field.HookUpdateTimeStampForUpdateCallback)
 	db.Callback().Delete().Replace("gorm:delete", field.HookDeleteCallback)
