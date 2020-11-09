@@ -14,7 +14,7 @@ func Match(tracer, startByte, endByte []byte) (b []byte) {
 	if start == -1 {
 		return
 	}
-	
+
 	end := bytes.Index(tracer[start:], endByte)
 	if end == -1 {
 		return
@@ -22,7 +22,6 @@ func Match(tracer, startByte, endByte []byte) (b []byte) {
 
 	return tracer[start+len(startByte) : start+end+len(endByte)]
 }
-
 
 // 取字节集中间
 func MatchLast(tracer, startByte, endByte []byte) (b []byte) {

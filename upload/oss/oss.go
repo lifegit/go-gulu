@@ -27,7 +27,7 @@ func New(endpoint, accessKeyID, accessKeySecret, bucketName string, haveDomain s
 	if err != nil {
 		return nil, errors.New("oss-bucket 初始化失败")
 	}
-//-internal
+	//-internal
 	domain := ""
 	if haveDomain == "" {
 		domain = "https://" + bucketName + "." + endpoint + "/"

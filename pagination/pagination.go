@@ -7,14 +7,12 @@ package pagination
 import (
 	"fmt"
 	"go-gulu/arrayconv"
-	"go-gulu/dbUtils"
+	"go-gulu/dbTools/dbUtils"
+	"go-gulu/dbTools/tool/order"
+	"go-gulu/dbTools/tool/where"
 )
 
-type Searched struct {
-	Name   string
-	AsName string
-	Vague  bool
-}
+const DefaultLimit = 15
 
 type Pagination struct {
 	Page  uint
@@ -23,21 +21,25 @@ type Pagination struct {
 	DbUtils *dbUtils.DbUtils
 }
 
-func New(page uint) *Pagination {
-	var limit uint = 15
-
+func New(page uint, limit uint) *Pagination {
+	offset := dbUtils.DbOffset(limit * (page -1))
 	return &Pagination{
 		Page:  page,
 		Limit: limit,
 
 		DbUtils: &dbUtils.DbUtils{
-			Where:  &dbUtils.DbWheres{},
-			Join:   &dbUtils.DbJoin{},
-			Offset: limit * (page - 1),
+			Wheres:  &dbUtils.DbWheres{},
+			Joins:   &dbUtils.DbJoin{},
+			Offset:  &offset,
 		},
 	}
 }
 
+type Searched struct {
+	Name   string
+	AsName string
+	Vague  bool
+}
 ////假设接收来自客户端的数据
 //ma:= make(map[string]interface{})
 //ma["projectid"] = []int{1}
@@ -51,28 +53,29 @@ func (p *Pagination) AllowFiltered(tableName string, data *map[string]interface{
 				if arr, ok := val.([]interface{}); ok {
 					length := len(arr)
 					if length > 1 {
-						p.DbUtils.Where.In = append(p.DbUtils.Where.In, dbUtils.In{
-							Field: fmt.Sprintf("%s.`%s`", tableName, key),
+						p.DbUtils.Where(where.In{
+							Not:   false,
+							Field: fmt.Sprintf("`%s`.`%s`", tableName, key),
 							In:    val,
 						})
 					} else if length == 1 {
-						p.DbUtils.Where.Compare = append(p.DbUtils.Where.Compare, dbUtils.Compare{
+						p.DbUtils.Where(where.Compare{
 							Field: fmt.Sprintf("%s.`%s`", tableName, key),
-							Type:  dbUtils.CompareEqual,
+							Type:  where.CompareEqual,
 							Text:  val,
 						})
 					}
 				}
 			} else if sea := arrayGet(key, searched); sea != nil {
 				if sea.Vague {
-					p.DbUtils.Where.Like = append(p.DbUtils.Where.Like, dbUtils.Like{
+					p.DbUtils.Where(where.Like{
 						Field: fmt.Sprintf("%s.`%s`", tableName, sea.Name),
 						Text:  val.(string),
 					})
 				} else {
-					p.DbUtils.Where.Compare = append(p.DbUtils.Where.Compare, dbUtils.Compare{
+					p.DbUtils.Where(where.Compare{
 						Field: fmt.Sprintf("%s.`%s`", tableName, sea.Name),
-						Type:  dbUtils.CompareEqual,
+						Type:  where.CompareEqual,
 						Text:  val,
 					})
 				}
@@ -81,33 +84,19 @@ func (p *Pagination) AllowFiltered(tableName string, data *map[string]interface{
 	}
 }
 
-func (p *Pagination) AllowSorted(tableName string, o *dbUtils.Order, allow []string, defaultOrder *dbUtils.Order) {
+func (p *Pagination) AllowSorted(tableName string, o *order.Order, allow []string, defaultOrder *order.Order) {
 	if o != nil && arrayconv.StringIn(o.Field, allow) {
-		p.DbUtils.Order = &dbUtils.Order{
+		p.DbUtils.Order(dbUtils.DbOrder{
 			Field: fmt.Sprintf("%s.`%s`", tableName, o.Field),
 			Type:  o.Type,
-		}
+		})
 		return
 	}
 
-	if defaultOrder != nil && p.DbUtils.Order == nil {
-		p.DbUtils.Order = &dbUtils.Order{
+	if defaultOrder != nil && p.DbUtils.Orders == nil {
+		p.DbUtils.Order(dbUtils.DbOrder{
 			Field: fmt.Sprintf("%s.`%s`", tableName, defaultOrder.Field),
 			Type:  defaultOrder.Type,
-		}
+		})
 	}
-}
-
-func (p *Pagination) AddJoin(joinTableName string, left dbUtils.JoinOn, right dbUtils.JoinOn) {
-	p.DbUtils.Join.LeftJoin = append(p.DbUtils.Join.LeftJoin, dbUtils.LeftJoin{
-		TableName: joinTableName,
-		Left: dbUtils.JoinOn{
-			Table: left.Table,
-			Field: left.Field,
-		},
-		Right: dbUtils.JoinOn{
-			Table: right.Table,
-			Field: right.Field,
-		},
-	})
 }

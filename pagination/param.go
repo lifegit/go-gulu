@@ -4,10 +4,14 @@
  */
 package pagination
 
-import "go-gulu/dbUtils"
+import (
+	"go-gulu/dbTools/tool/order"
+)
 
 type Param struct {
 	Page     uint                    `form:"page" binding:"required,min=1"`
 	Filtered *map[string]interface{} `form:"filtered"`
-	Sorted   *dbUtils.Order          `form:"sorted"`
+	Sorted   *order.Order          `form:"sorted"`
 }
+
+

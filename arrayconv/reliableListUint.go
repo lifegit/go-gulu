@@ -6,21 +6,19 @@ package arrayconv
 
 import "sync"
 
-
 type ListUint struct {
-	mu           sync.RWMutex
+	mu   sync.RWMutex
 	list []uint
 }
 
-func (l *ListUint) PushList(o []uint)  {
+func (l *ListUint) PushList(o []uint) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
-	
+
 	l.list = append(l.list, o...)
 }
 
-
-func (l *ListUint) Push(o uint)  {
+func (l *ListUint) Push(o uint) {
 	l.mu.Lock()
 	defer l.mu.Unlock()
 
