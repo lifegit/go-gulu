@@ -27,7 +27,7 @@ func (d *DbUtils) Update(w interface{}) *DbUtils {
 }
 
 func (d *DbUtils) GetUpdate() (m *map[string]interface{}) {
-	if d.Updates == nil {
+	if d == nil || d.Updates == nil {
 		return nil
 	}
 	mp := make(map[string]interface{})

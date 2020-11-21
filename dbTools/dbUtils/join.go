@@ -27,7 +27,7 @@ func (d *DbUtils) Join(w interface{}) *DbUtils {
 }
 
 func (d *DbUtils) GetJoin(tx *gorm.DB) *gorm.DB {
-	if d.Joins == nil {
+	if d == nil || d.Joins == nil {
 		return tx
 	}
 

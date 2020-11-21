@@ -22,7 +22,7 @@ func (d *DbUtils) Order(w interface{}) *DbUtils {
 }
 
 func (d *DbUtils) GetOrder(tx *gorm.DB) *gorm.DB {
-	if d.Orders == nil {
+	if d == nil || d.Orders == nil {
 		return tx
 	}
 

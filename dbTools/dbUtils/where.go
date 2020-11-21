@@ -42,7 +42,7 @@ func (d *DbUtils) Where(w interface{}) *DbUtils {
 }
 
 func (d *DbUtils) GetWhere(tx *gorm.DB) *gorm.DB {
-	if d.Wheres == nil {
+	if d == nil || d.Wheres == nil {
 		return tx
 	}
 

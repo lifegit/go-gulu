@@ -22,7 +22,7 @@ func (d *DbUtils) OffSet(w interface{}) *DbUtils {
 }
 
 func (d *DbUtils) GetOffSet(tx *gorm.DB) *gorm.DB {
-	if d.Offset == nil {
+	if d == nil || d.Offset == nil {
 		return tx
 	}
 
