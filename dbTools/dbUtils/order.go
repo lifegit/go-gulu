@@ -5,8 +5,8 @@
 package dbUtils
 
 import (
-	"github.com/jinzhu/gorm"
 	"go-gulu/dbTools/tool/order"
+	"github.com/jinzhu/gorm"
 )
 
 type DbOrder order.Order
