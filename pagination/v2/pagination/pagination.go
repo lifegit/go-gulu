@@ -7,21 +7,21 @@ package pagination
 import (
 	"fmt"
 	"go-gulu/arrayconv"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/dbTools/tool/order"
-	"go-gulu/dbTools/tool/where"
+	"go-gulu/dbTools/v2/dbUtils"
+	"go-gulu/dbTools/v2/tool/order"
+	"go-gulu/dbTools/v2/tool/where"
 )
 
 const DefaultLimit = 15
 
 type Pagination struct {
-	Page  uint
-	Limit uint
+	Page  int
+	Limit int
 
 	DbUtils *dbUtils.DbUtils
 }
 
-func New(page uint, limit uint) *Pagination {
+func New(page int, limit int) *Pagination {
 	offset := dbUtils.DbOffset(limit * (page -1))
 	return &Pagination{
 		Page:  page,
@@ -38,7 +38,7 @@ func New(page uint, limit uint) *Pagination {
 type Searched struct {
 	Name   string
 	AsName string
-	Vague  bool
+	Vague  bool // 模糊
 }
 ////假设接收来自客户端的数据
 //ma:= make(map[string]interface{})
@@ -48,6 +48,7 @@ type Searched struct {
 //ma["name"] = "王"
 func (p *Pagination) AllowFiltered(tableName string, data *map[string]interface{}, filtered []string, searched []Searched) {
 	if data != nil {
+
 		for key, val := range *data {
 			if arrayconv.StringIn(key, filtered) {
 				if arr, ok := val.([]interface{}); ok {
@@ -66,18 +67,21 @@ func (p *Pagination) AllowFiltered(tableName string, data *map[string]interface{
 						})
 					}
 				}
-			} else if sea := arrayGet(key, searched); sea != nil {
-				if sea.Vague {
-					p.DbUtils.Where(where.Like{
-						Field: fmt.Sprintf("%s.`%s`", tableName, sea.Name),
-						Text:  val.(string),
-					})
-				} else {
-					p.DbUtils.Where(where.Compare{
-						Field: fmt.Sprintf("%s.`%s`", tableName, sea.Name),
-						Type:  where.CompareEqual,
-						Text:  val,
-					})
+			} else if sea := arrayGet(key, searched); sea != nil  {
+
+				if res, ok := val.(string); ok {
+					if sea.Vague {
+						p.DbUtils.Where(where.Like{
+							Field: fmt.Sprintf("%s.`%s`", tableName, sea.Name),
+							Text:  res,
+						})
+					} else {
+						p.DbUtils.Where(where.Compare{
+							Field: fmt.Sprintf("%s.`%s`", tableName, sea.Name),
+							Type:  where.CompareEqual,
+							Text:  val,
+						})
+					}
 				}
 			}
 		}

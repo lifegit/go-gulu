@@ -5,8 +5,8 @@
 package dbUtils
 
 import (
-	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/tool/offset"
+	"go-gulu/dbTools/v2/tool/offset"
+	"gorm.io/gorm"
 )
 
 type DbOffset offset.Offset
@@ -27,7 +27,7 @@ func (d *DbUtils) GetOffSet(tx *gorm.DB) *gorm.DB {
 	}
 
 	if *d.Offset > 0 {
-		tx = tx.Offset(*d.Offset)
+		tx = tx.Offset(int(offset.Offset(*d.Offset)))
 	}
 	return tx
 }

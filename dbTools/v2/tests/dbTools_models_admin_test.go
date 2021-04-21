@@ -1,10 +1,10 @@
-package dbTools
+package tests
 
 import (
 	"errors"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/dbTools/hoos"
-	"go-gulu/pagination"
+	"go-gulu/dbTools/v2/dbUtils"
+	"go-gulu/dbTools/v2/hooks"
+	"go-gulu/pagination/v1"
 	"go-gulu/paramValidator"
 	"go-gulu/structure"
 )
@@ -36,7 +36,7 @@ INSERT INTO `db_clouddream_prod`.`tb_admins_info`(`id`, `use`, `username`, `pass
 
 //TbAdminsInfo
 type TbAdminsInfo struct {
-	hoos.TimeFieldsModel
+	hooks.TimeFieldsModel
 	DbUtils *dbUtils.DbUtils `gorm:"-" json:"-" form:"-"`
 
 	Id            uint   `gorm:"column:id" json:"id" comment:"" columnType:"int(10) unsigned" dataType:"int" columnKey:"PRI"`

@@ -2,14 +2,13 @@
 * @Author: TheLife
 * @Date: 2020-11-8 5:57 下午
  */
-package dbTools
+package tests
 
 import (
 	"errors"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/dbTools/hoos"
-	"go-gulu/pagination"
+	"go-gulu/dbTools/v2/dbUtils"
+	"go-gulu/dbTools/v2/hooks"
+	"go-gulu/pagination/v1"
 	"go-gulu/paramValidator"
 	"go-gulu/structure"
 )
@@ -39,7 +38,7 @@ INSERT INTO `db_clouddream_prod`.`tb_record_recharge_agent_info`(`id`, `adminid`
 
 //TbRecordRechargeInfo
 type TbRecordRechargeAgentInfo struct {
-	hoos.TimeFieldsModel
+	hooks.TimeFieldsModel
 	DbUtils *dbUtils.DbUtils `gorm:"-" json:"-" form:"-"`
 
 	Id      uint    `gorm:"column:id" form:"id" json:"id" comment:"" columnType:"int(10) unsigned" dataType:"int" columnKey:"PRI"`

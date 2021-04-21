@@ -4,7 +4,7 @@
  */
 package dbUtils
 
-import "go-gulu/dbTools/tool/update"
+import "go-gulu/dbTools/v2/tool/update"
 
 type DbUpdates struct {
 	Arithmetic []update.Arithmetic

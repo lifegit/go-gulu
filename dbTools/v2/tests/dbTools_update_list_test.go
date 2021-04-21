@@ -2,13 +2,13 @@
 * @Author: TheLife
 * @Date: 2020-11-8 5:57 下午
  */
-package dbTools
+package tests
 
 import (
 	"fmt"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/dbTools/tool/update"
-	"go-gulu/dbTools/tool/where"
+	"go-gulu/dbTools/v2/dbUtils"
+	"go-gulu/dbTools/v2/tool/update"
+	"go-gulu/dbTools/v2/tool/where"
 	"testing"
 	"time"
 )

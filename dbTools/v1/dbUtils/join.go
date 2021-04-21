@@ -6,7 +6,7 @@ package dbUtils
 
 import (
 	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/tool/join"
+	"go-gulu/dbTools/v1/tool/join"
 )
 
 type DbJoin struct {

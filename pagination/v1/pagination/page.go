@@ -5,6 +5,6 @@
 package pagination
 
 type Page struct {
-	Total uint `json:"total"`
-	Size  uint `json:"size"`
+	Total int64 `json:"total"`
+	Size  int `json:"size"`
 }

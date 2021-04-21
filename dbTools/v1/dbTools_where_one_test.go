@@ -2,14 +2,14 @@
 * @Author: TheLife
 * @Date: 2020-11-8 5:57 下午
  */
-package dbTools
+package v1
 
 import (
 	"fmt"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/dbTools/tool/order"
-	"go-gulu/dbTools/tool/where"
+	"go-gulu/dbTools/v1/dbUtils"
+	"go-gulu/dbTools/v1/tool/order"
+	"go-gulu/dbTools/v1/tool/where"
 	"testing"
 	"time"
 )

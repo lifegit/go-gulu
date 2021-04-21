@@ -2,12 +2,12 @@
 * @Author: TheLife
 * @Date: 2020-11-8 5:57 下午
  */
-package dbTools
+package v1
 
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/hoos"
+	"go-gulu/dbTools/v1/hoos"
 	"log"
 )
 
