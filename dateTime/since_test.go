@@ -15,5 +15,5 @@ func TestName(t *testing.T) {
 	for sum := 0; sum <= 100000000; sum++ {
 	}
 
-	s.Stop(true)
+	s.Dot(true)
 }

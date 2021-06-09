@@ -6,9 +6,9 @@ package logging
 
 import (
 	"github.com/lestrrat-go/file-rotatelogs"
+	"github.com/lifegit/go-gulu/file"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
-	"github.com/lifegit/go-gulu/file"
 	"os"
 	"time"
 )
