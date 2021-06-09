@@ -2,11 +2,11 @@ package dbUtils_test
 
 import (
 	"errors"
-	"go-gulu/dbTools/v1/dbUtils/dbUtils"
-	"go-gulu/dbTools/v1/dbUtils/hoos"
-	"go-gulu/dbTools/v1/pagination"
-	"go-gulu/paramValidator"
-	"go-gulu/structure"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/hoos"
+	"github.com/lifegit/go-gulu/dbTools/v1/pagination"
+	"github.com/lifegit/go-gulu/paramValidator"
+	"github.com/lifegit/go-gulu/structure"
 )
 
 /*

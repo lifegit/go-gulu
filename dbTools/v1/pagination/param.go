@@ -4,7 +4,7 @@
  */
 package pagination
 
-import "go-gulu/dbTools/v1/dbUtils/tool/order"
+import "github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/order"
 
 type Param struct {
 	Page     uint                    `form:"page" binding:"required,min=1"`

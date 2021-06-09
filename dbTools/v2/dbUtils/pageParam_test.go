@@ -7,7 +7,7 @@ package dbUtils_test
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"go-gulu/dbTools/v2/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v2/dbUtils"
 	"gorm.io/gorm"
 	"net/http"
 	"testing"

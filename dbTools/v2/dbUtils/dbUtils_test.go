@@ -6,7 +6,7 @@ package dbUtils_test
 
 import (
 	"fmt"
-	"go-gulu/dbTools/v2/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v2/dbUtils"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

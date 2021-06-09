@@ -9,7 +9,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"go-gulu/viperine"
+	"github.com/lifegit/go-gulu/viperine"
 	"testing"
 	"time"
 )

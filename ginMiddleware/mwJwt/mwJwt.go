@@ -2,7 +2,7 @@ package mwJwt
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-gulu/jwt"
+	"github.com/lifegit/go-gulu/jwt"
 	"net/http"
 	"strings"
 )

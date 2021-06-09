@@ -6,10 +6,10 @@ package tests
 
 import (
 	"fmt"
-	"go-gulu/dbTools/v2/dbUtils"
-	"go-gulu/dbTools/v2/tool/join"
-	"go-gulu/dbTools/v2/tool/where"
-	"go-gulu/pagination/v1"
+	"github.com/lifegit/go-gulu/dbTools/v2/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v2/tool/join"
+	"github.com/lifegit/go-gulu/dbTools/v2/tool/where"
+	"github.com/lifegit/go-gulu/pagination/v1"
 	"testing"
 	"time"
 )

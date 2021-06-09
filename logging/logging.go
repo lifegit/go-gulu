@@ -8,7 +8,7 @@ import (
 	"github.com/lestrrat-go/file-rotatelogs"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
-	"go-gulu/file"
+	"github.com/lifegit/go-gulu/file"
 	"os"
 	"time"
 )

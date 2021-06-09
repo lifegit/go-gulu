@@ -7,7 +7,7 @@ package dbUtils_test
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/v1/dbUtils/hoos"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/hoos"
 	"log"
 )
 

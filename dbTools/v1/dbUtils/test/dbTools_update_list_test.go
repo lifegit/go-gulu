@@ -6,9 +6,9 @@ package dbUtils_test
 
 import (
 	"fmt"
-	"go-gulu/dbTools/v1/dbUtils/dbUtils"
-	"go-gulu/dbTools/v1/dbUtils/tool/update"
-	"go-gulu/dbTools/v1/dbUtils/tool/where"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/update"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/where"
 	"testing"
 	"time"
 )

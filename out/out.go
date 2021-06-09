@@ -7,7 +7,7 @@ package out
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-gulu/dbTools/v2/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v2/dbUtils"
 	"net/http"
 	"strconv"
 )

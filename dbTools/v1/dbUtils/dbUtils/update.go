@@ -5,7 +5,7 @@
 package dbUtils
 
 import (
-	"go-gulu/dbTools/v1/dbUtils/tool/update"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/update"
 )
 
 type DbUpdates struct {

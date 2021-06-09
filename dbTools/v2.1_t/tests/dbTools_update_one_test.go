@@ -6,8 +6,8 @@ package tests
 
 import (
 	"fmt"
-	"go-gulu/dbTools/v2/dbUtils"
-	"go-gulu/dbTools/v2/tool/update"
+	"github.com/lifegit/go-gulu/dbTools/v2/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v2/tool/update"
 	"testing"
 )
 

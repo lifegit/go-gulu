@@ -6,11 +6,11 @@ package tests
 
 import (
 	"errors"
-	"go-gulu/dbTools/v2/dbUtils"
-	"go-gulu/dbTools/v2/hooks"
-	"go-gulu/pagination/v1"
-	"go-gulu/paramValidator"
-	"go-gulu/structure"
+	"github.com/lifegit/go-gulu/dbTools/v2/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v2/hooks"
+	"github.com/lifegit/go-gulu/pagination/v1"
+	"github.com/lifegit/go-gulu/paramValidator"
+	"github.com/lifegit/go-gulu/structure"
 )
 
 /*

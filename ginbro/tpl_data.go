@@ -293,10 +293,10 @@ package models
 
 import (
 	"errors"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/pagination"
-	"go-gulu/paramValidator"
-	"go-gulu/structure"
+	"github.com/lifegit/go-gulu/dbTools/dbUtils"
+	"github.com/lifegit/go-gulu/pagination"
+	"github.com/lifegit/go-gulu/paramValidator"
+	"github.com/lifegit/go-gulu/structure"
 )
 
 //{{.ModelName}}
@@ -399,9 +399,9 @@ import (
 	"{{.AppPkg}}/models/fields/{{.TableName}}"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
-	"go-gulu/app"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/pagination"
+	"github.com/lifegit/go-gulu/app"
+	"github.com/lifegit/go-gulu/dbTools/dbUtils"
+	"github.com/lifegit/go-gulu/pagination"
 )
 
 func init() {
@@ -655,7 +655,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	"go-gulu/dbTools/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/dbUtils"
 	"strings"
 )
 
@@ -736,7 +736,7 @@ import (
 	"{{.AppPkg}}/cite/conf"
 	"fmt"
 	"github.com/go-redis/redis"
-	"go-gulu/gredis"
+	"github.com/lifegit/go-gulu/gredis"
 )
 
 func initCache() *redis.Client {
@@ -839,7 +839,7 @@ import (
 	"{{.AppPkg}}/cite/appLogging"
 	"{{.AppPkg}}/cite/conf"
 	"{{.AppPkg}}/models"
-	"go-gulu/paramValidator"
+	"github.com/lifegit/go-gulu/paramValidator"
 	"time"
 )
 
@@ -882,9 +882,9 @@ import (
 	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/mapstructure"
-	"go-gulu/ginMiddleware/mwCors"
-	"go-gulu/ginMiddleware/mwJwt"
-	"go-gulu/ginMiddleware/mwLogger"
+	"github.com/lifegit/go-gulu/ginMiddleware/mwCors"
+	"github.com/lifegit/go-gulu/ginMiddleware/mwJwt"
+	"github.com/lifegit/go-gulu/ginMiddleware/mwLogger"
 	"net/http"
 	"path"
 	"time"
@@ -1249,7 +1249,7 @@ package appLogging
 import (
 	"{{.AppPkg}}/cite/conf"
 	"github.com/sirupsen/logrus"
-	"go-gulu/logging"
+	"github.com/lifegit/go-gulu/logging"
 )
 
 var Log *logrus.Logger
@@ -1375,9 +1375,9 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"go-gulu/upload"
-	"go-gulu/upload/local"
-	"go-gulu/upload/oss"
+	"github.com/lifegit/go-gulu/upload"
+	"github.com/lifegit/go-gulu/upload/local"
+	"github.com/lifegit/go-gulu/upload/oss"
 	"strings"
 )
 

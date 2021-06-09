@@ -6,10 +6,10 @@ package pagination
 
 import (
 	"fmt"
-	"go-gulu/arrayconv"
-	"go-gulu/dbTools/v1/dbUtils/dbUtils"
-	"go-gulu/dbTools/v1/dbUtils/tool/order"
-	"go-gulu/dbTools/v1/dbUtils/tool/where"
+	"github.com/lifegit/go-gulu/arrayconv"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/order"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/where"
 )
 
 const DefaultLimit = 15

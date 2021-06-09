@@ -6,7 +6,7 @@ package dbUtils
 
 import (
 	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/v1/dbUtils/tool/offset"
+	"github.com/lifegit/go-gulu/dbTools/v1/dbUtils/tool/offset"
 )
 
 type DbOffset offset.Offset

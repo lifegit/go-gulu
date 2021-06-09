@@ -6,7 +6,7 @@ package tests
 
 import (
 	"fmt"
-	"go-gulu/dbTools/v2/hooks"
+	"github.com/lifegit/go-gulu/dbTools/v2/hooks"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

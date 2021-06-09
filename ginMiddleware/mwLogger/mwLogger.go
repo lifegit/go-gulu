@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"go-gulu/logging"
+	"github.com/lifegit/go-gulu/logging"
 	"io"
 	"net/http"
 	"os"

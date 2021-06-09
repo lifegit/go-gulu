@@ -7,8 +7,8 @@ package person
 import (
 	"errors"
 	"github.com/wenzhenxi/gorsa"
-	"go-gulu/crypto"
-	"go-gulu/rand"
+	"github.com/lifegit/go-gulu/crypto"
+	"github.com/lifegit/go-gulu/rand"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
 	"strings"

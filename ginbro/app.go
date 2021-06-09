@@ -3,7 +3,7 @@ package ginbro
 import (
 	"errors"
 	"fmt"
-	"go-gulu/rand"
+	"github.com/lifegit/go-gulu/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
