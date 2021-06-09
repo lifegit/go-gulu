@@ -5,7 +5,7 @@
  一个可以写 log 的 RWMutex 组件。
  通常使用log用于排查死锁问题。
  可直接替换 sync 包中的 RWMutex
- */
+*/
 package rwMutexLog
 
 import (
@@ -24,33 +24,31 @@ type RWMutex struct {
 
 	once sync.Once
 
-	Logger *logrus.Logger
+	Logger    *logrus.Logger
 	LoggerKey string
 }
 
-func (r *RWMutex) RUnlock ()  {
+func (r *RWMutex) RUnlock() {
 	r.m.RUnlock()
 	r.log()
 }
 
-func (r *RWMutex) RLock ()  {
+func (r *RWMutex) RLock() {
 	r.m.RLock()
 	r.log()
 }
 
-func (r *RWMutex) Unlock ()  {
+func (r *RWMutex) Unlock() {
 	r.m.Unlock()
 	r.log()
 }
 
-func (r *RWMutex) Lock ()  {
+func (r *RWMutex) Lock() {
 	r.m.Lock()
 	r.log()
 }
 
-
-
-func (r *RWMutex) log ()  {
+func (r *RWMutex) log() {
 	// memory stack
 	var buf [2 << 10]byte
 	z := string(buf[:runtime.Stack(buf[:], true)])
@@ -58,7 +56,7 @@ func (r *RWMutex) log ()  {
 	// singleton
 	r.once.Do(func() {
 		list := strings.Split(z, "\n")
-		index := 1 + 2 * stackDeep
+		index := 1 + 2*stackDeep
 		if len(list) < index {
 			return
 		}
@@ -81,12 +79,10 @@ func match(text string) (res string) {
 		return
 	}
 
-	endIndex := strings.Index(text[startIndex:],".")
-	if endIndex == - 1 {
+	endIndex := strings.Index(text[startIndex:], ".")
+	if endIndex == -1 {
 		return
 	}
 
-	return text[startIndex+1 : startIndex + endIndex]
+	return text[startIndex+1 : startIndex+endIndex]
 }
-
-

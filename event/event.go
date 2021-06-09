@@ -5,7 +5,6 @@
 package event
 
 import (
-	"fmt"
 	"sync"
 	"time"
 )
@@ -49,7 +48,6 @@ func (w *Event) Register(timeout time.Duration, data interface{}, callbackFunc f
 	w.m[id] = ev
 
 	go func(id uint64, timeout time.Duration, ev event) {
-		fmt.Println("555")
 		for true {
 			select {
 			case <-ev.c:

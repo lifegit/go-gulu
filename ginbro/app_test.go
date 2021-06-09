@@ -29,7 +29,6 @@ import (
 //	_ = os.Chmod(gc.AppDir, 0777)
 //}
 
-
 // sudo go test -v ./ginbro && sudo chmod -R 777 /Users/yxs/GolandProjects/src/felix/ginbro/TEST0
 func TestRun(t *testing.T) {
 

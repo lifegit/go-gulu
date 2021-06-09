@@ -14,6 +14,8 @@ func Match(tracer, startStr, endStr string) string {
 	if start == -1 {
 		return ""
 	}
+	start = start + len(startStr)
+
 	end := strings.Index(tracer[start:], endStr)
 	if end == -1 {
 		return ""

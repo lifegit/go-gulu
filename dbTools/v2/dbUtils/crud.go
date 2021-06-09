@@ -1,117 +1,89 @@
 /**
 * @Author: TheLife
-* @Date: 2020-4-24 1:38 下午
+* @Date: 2021/5/27 下午5:08
  */
 package dbUtils
 
 import (
 	"errors"
 	"fmt"
-	"gorm.io/gorm"
 )
 
-func (d *DbUtils) CrudOne(fields []string, where interface{}, one interface{}, defaultDb *gorm.DB) error {
-	tx := InitDb(d, defaultDb)
-	tx = tx.Where(where)
-	tx = d.GetWhere(tx)
-	tx = d.GetOrder(tx)
-	if fields != nil {
-		tx = tx.Select(fields)
-	}
+func (d *DbUtils) IsExists(model interface{}) bool {
+	var s interface{}
+	res := d.Model(model).Where(model).Select("1").Take(&s)
 
-	res := tx.Debug().Take(one)
-	if res.Error != nil {
-		return res.Error
-	}
-
-	return nil
+	return res.Error == nil
 }
 
-func (d *DbUtils) CrudAll(fields []string, where interface{}, list interface{}, defaultDb *gorm.DB) error {
-	tx := InitDb(d, defaultDb)
-	tx = tx.Where(where)
-	tx = d.GetWhere(tx)
-	tx = d.GetOrder(tx)
-	if fields != nil {
-		tx = tx.Select(fields)
-	}
-
-	err := tx.Debug().Find(list).Error
-	return err
-}
-
-func (d *DbUtils) CrudAllPage(fields []string, where interface{}, list interface{}, limit int, defaultDb *gorm.DB) (count int64, err error) {
-	tx := InitDb(d, defaultDb)
-	tx = tx.Model(where).Where(where)
-	tx = d.GetWhere(tx)
-	tx = d.GetOrder(tx)
-	tx = d.GetJoin(tx)
-
-	if fields != nil {
-		tx = tx.Select(fields)
-	}
-
-	err = tx.Count(&count).Error
-	if count > 0 {
-		tx = d.GetOffSet(tx)
-		err = tx.Debug().Limit(limit).Find(list).Error
-	}
-
-	return count, err
-}
-
-func (d *DbUtils) CrudCount(where interface{}, defaultDb *gorm.DB) (count int64, err error) {
-	tx := InitDb(d, defaultDb)
-	tx = tx.Model(where).Where(where)
-	tx = d.GetWhere(tx)
-
-	err = tx.Count(&count).Error
-	return
-}
-func (d *DbUtils) CrudSum(field string, where interface{}, defaultDb *gorm.DB) (sum float32, err error) {
-	tx := InitDb(d, defaultDb)
-	tx = tx.Model(where).Where(where)
-	tx = d.GetWhere(tx)
-
-	row := tx.Select(fmt.Sprintf("IFNULL(SUM(`%s`),0)", field)).Row()
-	err = row.Scan(&sum)
+func (d *DbUtils) CrudOne(model interface{}, callData interface{}) (err error) {
+	err = d.Model(model).Where(model).Take(callData).Error
 
 	return
 }
-func (d *DbUtils) CrudUpdate(updates map[string]interface{}, where interface{}, defaultDb *gorm.DB, limit1 bool) (err error) {
-	tx := InitDb(d, defaultDb)
-	tx = d.GetWhere(tx)
-	if up := d.GetUpdate(); up != nil {
-		for k, v := range *up {
-			updates[k] = v
-		}
+
+func (d *DbUtils) CrudAll(model interface{}, callListData interface{}) (err error) {
+	err = d.Model(model).Where(model).Find(callListData).Error
+
+	return
+}
+
+func (d *DbUtils) CrudAllPage(model interface{}, callListData interface{}, page PageParam, allow Allow) (total int64, err error) {
+	// SELECT * FROM `user` WHERE (`time` >= 1622173028456.000000 AND `time` <= 1622259431456.000000) AND `name` LIKE '%张明%' AND `age` = 18.000000 ORDER BY id asc
+
+	tx := d.Model(model).Where(model)
+	tx = allow.AllowParams(page.Params, d).DB
+	//tx = allow.Allow(page.Params, page.Sort, d).DB
+
+	tx.Find(callListData) // .Offset(20).Limit(20)
+
+	tx.Count(&total)
+
+	////return
+	//
+	//tx.Count(&count)
+	//
+	////err = tx.Count(&count).Error
+	//if count >= 0 {
+	//	err =
+	//}
+
+	return
+}
+
+func (d *DbUtils) CrudCount(model interface{}) (count int64, err error) {
+	err = d.Model(model).Where(model).Count(&count).Error
+
+	return
+}
+
+func (d *DbUtils) CrudSum(model interface{}, column string) (sum float32, err error) {
+	err = d.Model(model).Where(model).Select(fmt.Sprintf("IFNULL(SUM(`%s`),0)", column)).Row().Scan(&sum)
+
+	return
+}
+
+func (d *DbUtils) CrudUpdate(model interface{}, updates interface{}, updateOne bool) (err error) {
+	tx := d.Model(model).Where(model)
+
+	if updateOne {
+		tx = tx.Limit(1)
 	}
 
-	tx = tx.Debug().Model(where)
-	if limit1 {
-		tx.Limit(1)
-	}
 	tx = tx.Updates(updates)
-	if err = tx.Error; err != nil {
-		return
+	if tx.Error != nil {
+		return tx.Error
 	}
 	if tx.RowsAffected <= 0 {
 		return errors.New("resource is not found")
 	}
-	return nil
+	return
 }
 
-func (d *DbUtils) CrudDelete(where interface{}, defaultDb *gorm.DB) error {
+func (d *DbUtils) CrudDelete(model interface{}) (err error) {
 	//WARNING When delete a record, you need to ensure it’s primary field has value, and GORM will use the primary key to delete the record, if primary field’s blank, GORM will delete all records for the model
 	//primary key must be not zero value
-	tx := InitDb(d, defaultDb)
-	tx = tx.Where(where)
-	tx = d.GetWhere(tx)
+	err = d.Where(model).Delete(model).Error
 
-	tx = tx.Debug().Delete(where)
-	if tx.Error != nil {
-		return tx.Error
-	}
-
-	return nil
+	return
 }

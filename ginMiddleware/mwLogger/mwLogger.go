@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"go-gulu/logging"
 	"io"
 	"net/http"
@@ -100,7 +101,16 @@ func (p *LogFormatterParams) ResetColor() string {
 	return reset
 }
 
-func NewLoggerMiddleware(isStdout, isWriter bool, writerDir string) (gin.HandlerFunc, error) {
+func NewLoggerMiddlewareSmoothFail(isStdout bool, isWriter bool, writerDir string) gin.HandlerFunc {
+	res, err := NewLoggerMiddleware(isStdout, isWriter, writerDir)
+	if err != nil {
+		logrus.WithError(err).WithField("writerDir", writerDir).Fatal("NewLoggerMiddlewareSmoothFail")
+	}
+
+	return res
+}
+
+func NewLoggerMiddleware(isStdout bool, isWriter bool, writerDir string) (gin.HandlerFunc, error) {
 	var writer io.Writer
 	if isWriter {
 		w, err := logging.NewRotateIO(writerDir, 5)
