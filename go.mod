@@ -1,4 +1,4 @@
-module go-gulu
+module github.com/lifegit/go-gulu
 
 go 1.12
 
