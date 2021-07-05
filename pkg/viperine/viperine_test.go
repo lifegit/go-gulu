@@ -7,7 +7,7 @@ package viperine_test
 import (
 	"fmt"
 	"github.com/fsnotify/fsnotify"
-	"github.com/lifegit/go-gulu/pkg/viperine"
+	"github.com/lifegit/go-gulu/v2/pkg/viperine"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/lifegit/go-gulu/pkg/logging"
+	"github.com/lifegit/go-gulu/v2/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"io"
 	"net/http"

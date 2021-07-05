@@ -5,7 +5,7 @@
 package mobileCode
 
 import (
-	"github.com/lifegit/go-gulu/nice/rand"
+	"github.com/lifegit/go-gulu/v2/nice/rand"
 	"regexp"
 )
 

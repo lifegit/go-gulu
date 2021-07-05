@@ -6,7 +6,7 @@ package logging
 
 import (
 	"github.com/lestrrat-go/file-rotatelogs"
-	"github.com/lifegit/go-gulu/nice/file"
+	"github.com/lifegit/go-gulu/v2/nice/file"
 	"github.com/rifflock/lfshook"
 	"github.com/sirupsen/logrus"
 	"os"

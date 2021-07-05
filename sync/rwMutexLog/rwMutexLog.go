@@ -10,7 +10,7 @@ package rwMutexLog
 
 import (
 	"fmt"
-	"github.com/lifegit/go-gulu/pkg/logging"
+	"github.com/lifegit/go-gulu/v2/pkg/logging"
 	"github.com/sirupsen/logrus"
 	"runtime"
 	"strings"

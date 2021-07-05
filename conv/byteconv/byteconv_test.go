@@ -5,7 +5,7 @@
 package byteconv_test
 
 import (
-	"github.com/lifegit/go-gulu/conv/byteconv"
+	"github.com/lifegit/go-gulu/v2/conv/byteconv"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

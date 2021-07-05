@@ -5,7 +5,7 @@
 package stringconv_test
 
 import (
-	"github.com/lifegit/go-gulu/conv/stringconv"
+	"github.com/lifegit/go-gulu/v2/conv/stringconv"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

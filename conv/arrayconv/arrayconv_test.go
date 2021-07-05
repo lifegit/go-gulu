@@ -5,7 +5,7 @@
 package arrayconv_test
 
 import (
-	"github.com/lifegit/go-gulu/conv/arrayconv"
+	"github.com/lifegit/go-gulu/v2/conv/arrayconv"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

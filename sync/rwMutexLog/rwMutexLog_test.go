@@ -6,7 +6,7 @@ package rwMutexLog_test
 
 import (
 	"fmt"
-	"github.com/lifegit/go-gulu/sync/rwMutexLog"
+	"github.com/lifegit/go-gulu/v2/sync/rwMutexLog"
 	"testing"
 )
 
