@@ -6,7 +6,7 @@ package person
 
 import (
 	"github.com/go-redis/redis"
-	"github.com/lifegit/go-gulu/pkg/gredis/cacheCount"
+	"github.com/lifegit/go-gulu/v2/pkg/gredis/cacheCount"
 	"time"
 )
 

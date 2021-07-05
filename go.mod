@@ -1,4 +1,4 @@
-module github.com/lifegit/go-gulu
+module github.com/lifegit/go-gulu/v2
 
 go 1.16
 

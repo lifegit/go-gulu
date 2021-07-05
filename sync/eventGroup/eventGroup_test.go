@@ -6,7 +6,7 @@ package eventGroup_test
 
 import (
 	"fmt"
-	"github.com/lifegit/go-gulu/sync/eventGroup"
+	"github.com/lifegit/go-gulu/v2/sync/eventGroup"
 	"testing"
 	"time"
 )

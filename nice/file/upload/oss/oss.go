@@ -9,7 +9,7 @@ import (
 	"errors"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/gin-gonic/gin"
-	upload2 "github.com/lifegit/go-gulu/nice/file/upload"
+	upload2 "github.com/lifegit/go-gulu/v2/nice/file/upload"
 	"strconv"
 )
 

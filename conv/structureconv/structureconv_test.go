@@ -5,7 +5,7 @@
 package structureconv_test
 
 import (
-	"github.com/lifegit/go-gulu/conv/structureconv"
+	"github.com/lifegit/go-gulu/v2/conv/structureconv"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

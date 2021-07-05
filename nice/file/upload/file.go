@@ -6,9 +6,9 @@ package upload
 
 import (
 	"fmt"
-	"github.com/lifegit/go-gulu/nice/crypto"
-	"github.com/lifegit/go-gulu/nice/file"
-	"github.com/lifegit/go-gulu/nice/rand"
+	"github.com/lifegit/go-gulu/v2/nice/crypto"
+	"github.com/lifegit/go-gulu/v2/nice/file"
+	"github.com/lifegit/go-gulu/v2/nice/rand"
 	"os"
 	"path"
 	"strconv"

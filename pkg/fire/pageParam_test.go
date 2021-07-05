@@ -6,7 +6,7 @@ package fire_test
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lifegit/go-gulu/pkg/out"
+	"github.com/lifegit/go-gulu/v2/pkg/out"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
