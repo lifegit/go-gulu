@@ -1,4 +1,0 @@
-# toml 转 struct : https://github.com/xuri/toml-to-go
-
-[app]
-    env = "dev"
