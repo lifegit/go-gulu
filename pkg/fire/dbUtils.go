@@ -14,7 +14,7 @@ import (
 
 // 对 gorm.DB 的补充封装，实现更爽快的使用。属于基础层服务代码。
 
-type DbUtils struct {
+type Fire struct {
 	*gorm.DB
 }
 
@@ -26,8 +26,8 @@ func If(isA bool, a, b interface{}) interface{} {
 	return b
 }
 
-func NewInstance(db *gorm.DB) *DbUtils {
-	return &DbUtils{DB: db}
+func NewInstance(db *gorm.DB) *Fire {
+	return &Fire{DB: db}
 }
 
 // 格式化列
@@ -50,16 +50,22 @@ func FormatColumn(column string) (res string) {
 	return
 }
 
+func (d *Fire) Close() {
+	if dbs, err := d.DB.DB(); err == nil {
+		_ = dbs.Close()
+	}
+}
+
 // === SELECT ===
 // TODO：Multiple SQL, gorm bonding data, so query conditions other than the main table are not supported
-func (d *DbUtils) PreloadAll() *DbUtils {
+func (d *Fire) PreloadAll() *Fire {
 	tx := d.DB.Preload(clause.Associations)
 
 	return NewInstance(tx)
 }
 
 // TODO：Single SQL, mysql bonding data, so the conditions of all query tables are supported. use Join you need to pay attention to performance
-func (d *DbUtils) PreloadJoin(model interface{}) *DbUtils {
+func (d *Fire) PreloadJoin(model interface{}) *Fire {
 	if reflect.TypeOf(model).Kind() != reflect.Struct {
 		return nil
 	}
@@ -81,7 +87,7 @@ func (d *DbUtils) PreloadJoin(model interface{}) *DbUtils {
 }
 
 // allow
-func (d *DbUtils) Allow(param Param, allow Allow) *DbUtils {
+func (d *Fire) Allow(param Param, allow Allow) *Fire {
 	tx := NewInstance(d.DB)
 	tx = allow.AllowParams(param.Params, tx)
 	tx = allow.AllowSort(param.Sort, tx)
@@ -102,7 +108,7 @@ const (
 // === where ===
 
 // column CompareEqual ? # column = ?
-func (d *DbUtils) WhereCompare(column string, value interface{}, compare ...CompareType) *DbUtils {
+func (d *Fire) WhereCompare(column string, value interface{}, compare ...CompareType) *Fire {
 	c := If(compare != nil, compare, []CompareType{CompareEqual})
 	tx := d.DB.Where(fmt.Sprintf("%s %s ?", FormatColumn(column), c.([]CompareType)[0]), value)
 
@@ -111,7 +117,7 @@ func (d *DbUtils) WhereCompare(column string, value interface{}, compare ...Comp
 
 // column IN(?)
 // column NOT IN(?)
-func (d *DbUtils) WhereIn(column string, value interface{}, isNot ...bool) *DbUtils {
+func (d *Fire) WhereIn(column string, value interface{}, isNot ...bool) *Fire {
 	c := If(isNot != nil && isNot[0], "NOT", "")
 	tx := d.Where(fmt.Sprintf("%s %s IN (?)", FormatColumn(column), c), value)
 
@@ -119,14 +125,14 @@ func (d *DbUtils) WhereIn(column string, value interface{}, isNot ...bool) *DbUt
 }
 
 // column LIKE %?%
-func (d *DbUtils) WhereLike(column string, value interface{}) *DbUtils {
+func (d *Fire) WhereLike(column string, value interface{}) *Fire {
 	tx := d.Where(fmt.Sprintf("%s LIKE ?", FormatColumn(column)), fmt.Sprintf("%%%s%%", value))
 
 	return NewInstance(tx)
 }
 
 // column >= start ANd column <= end
-func (d *DbUtils) WhereRange(column string, start interface{}, end interface{}) *DbUtils {
+func (d *Fire) WhereRange(column string, start interface{}, end interface{}) *Fire {
 	formatColumn := FormatColumn(column)
 	tx := d.Where(fmt.Sprintf("%s >= ? AND %s <= ?", formatColumn, formatColumn), start, end)
 
@@ -141,7 +147,7 @@ const (
 	OrderDesc OrderType = "desc"
 )
 
-func (d *DbUtils) OrderByColumn(column string, order OrderType, many ...bool) *DbUtils {
+func (d *Fire) OrderByColumn(column string, order OrderType, many ...bool) *Fire {
 	if many == nil || !many[0] {
 		delete(d.Statement.Clauses, "ORDER BY")
 	}

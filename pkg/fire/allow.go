@@ -25,7 +25,7 @@ type Allow struct {
 type Sort map[string]string
 
 // allowSort
-func (a *Allow) AllowSort(sort Sort, db *DbUtils) *DbUtils {
+func (a *Allow) AllowSort(sort Sort, db *Fire) *Fire {
 	for _, condItem := range a.Sorts {
 		for column, value := range sort {
 			if column == condItem {
@@ -40,7 +40,7 @@ func (a *Allow) AllowSort(sort Sort, db *DbUtils) *DbUtils {
 type Params map[string]interface{}
 
 // allowParams
-func (a *Allow) AllowParams(params Params, db *DbUtils) *DbUtils {
+func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
 	// used Allow loop: fixed SQL order, we can put the condition of low energy consumption in the front
 	// not used Params loop: range map is no order, it may result in different SQL generated each time
 

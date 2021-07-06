@@ -3,6 +3,7 @@ package fire_test
 import (
 	"context"
 	"fmt"
+	"github.com/lifegit/go-gulu/v2/pkg/fire"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
@@ -11,6 +12,7 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"log"
+	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,8 +20,8 @@ import (
 )
 
 // init mysql
-var DB *DbUtils
-var DBDryRun *DbUtils
+var DB *fire.Fire
+var DBDryRun *fire.Fire
 
 // 测试的开始位置
 func init() {
@@ -27,8 +29,8 @@ func init() {
 		log.Printf("failed to connect database, got error %v", err)
 		os.Exit(1)
 	} else {
-		DB = NewInstance(db.Session(&gorm.Session{Logger: &(Diary{})}))
-		DBDryRun = NewInstance(DB.Session(&gorm.Session{DryRun: true, NewDB: true, Logger: &(Diary{})}))
+		DB = fire.NewInstance(db.Session(&gorm.Session{Logger: &(Diary{})}))
+		DBDryRun = fire.NewInstance(DB.Session(&gorm.Session{DryRun: true, NewDB: true, Logger: &(Diary{})}))
 		sqlDB, err := db.DB()
 		if err == nil {
 			err = sqlDB.Ping()
@@ -38,10 +40,14 @@ func init() {
 			log.Printf("failed to connect database, got error %v", err)
 		}
 
-		//RunMigrations()
+		RunMigrations()
 		if DB.Dialector.Name() == "sqlite" {
 			DB.Exec("PRAGMA foreign_keys = ON")
 		}
+
+		// ConnPool db conn pool
+		sqlDB.SetMaxIdleConns(10)
+		sqlDB.SetMaxOpenConns(100)
 	}
 }
 
@@ -59,7 +65,7 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 	case "mysql":
 		log.Println("testing mysql...")
 		if dbDSN == "" {
-			dbDSN = "gorm:gorm@tcp(localhost:9910)/gorm?charset=utf8&parseTime=True&loc=Local"
+			dbDSN = "root:@tcp(localhost)/gorm?charset=utf8&parseTime=True&loc=Local"
 		}
 		db, err = gorm.Open(mysql.Open(dbDSN), gormConf)
 	case "postgres":
@@ -89,11 +95,6 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 		db, err = gorm.Open(sqlite.Open(filepath.Join(os.TempDir(), "gorm.db")), gormConf)
 	}
 
-	// ConnPool db conn pool
-	sqlDB, _ := db.DB()
-	sqlDB.SetMaxIdleConns(10)
-	sqlDB.SetMaxOpenConns(100)
-
 	return
 }
 
@@ -119,7 +120,7 @@ func (n *Diary) Trace(ctx context.Context, begin time.Time, fc func() (string, i
 	fmt.Println("Trace: ", sql)
 }
 func (n *Diary) LastSql(position ...int) string {
-	p := If(position == nil, []int{1}, position).([]int)[0]
+	p := fire.If(position == nil, []int{1}, position).([]int)[0]
 	if len(n.Sql) >= p {
 		return n.Sql[len(n.Sql)-p]
 	}
@@ -127,32 +128,98 @@ func (n *Diary) LastSql(position ...int) string {
 	return ""
 }
 
-// todo
-//func RunMigrations() {
-//	var err error
-//	allModels := []interface{}{&User{}, &Account{}, &Pet{}, &Company{}, &Toy{}, &Language{}}
-//	rand.Seed(time.Now().UnixNano())
-//	rand.Shuffle(len(allModels), func(i, j int) { allModels[i], allModels[j] = allModels[j], allModels[i] })
-//
-//	DB.Migrator().DropTable("user_friends", "user_speaks")
-//
-//	if err = DB.Migrator().DropTable(allModels...); err != nil {
-//		log.Printf("Failed to drop table, got error %v\n", err)
-//		os.Exit(1)
-//	}
-//
-//	if err = DB.AutoMigrate(allModels...); err != nil {
-//		log.Printf("Failed to auto migrate, but got error %v\n", err)
-//		os.Exit(1)
-//	}
-//
-//	for _, m := range allModels {
-//		if !DB.Migrator().HasTable(m) {
-//			log.Printf("Failed to create table for %#v\n", m)
-//			os.Exit(1)
-//		}
-//	}
-//}
+func RunMigrations() {
+	type User struct {
+		TbUser
+		Card      TbCard
+		Company   TbCompany
+		Languages []*TbLanguage `gorm:"many2many:user_languages;"`
+	}
+
+	var err error
+	allModels := []interface{}{&TbUser{},&TbCard{}, &TbCompany{}, &TbLanguage{}, &User{}}
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(allModels), func(i, j int) { allModels[i], allModels[j] = allModels[j], allModels[i] })
+
+	if err = DB.Migrator().DropTable(append(allModels, &TbUserLanguages{})...); err != nil { // TbUserLanguages 链接表是自动生成的，所以这里需要删除一下
+		log.Printf("Failed to drop table, got error %v\n", err)
+		os.Exit(1)
+	}
+
+	if err = DB.AutoMigrate(allModels...); err != nil {
+		log.Printf("Failed to auto migrate, but got error %v\n", err)
+		os.Exit(1)
+	}
+
+	for _, m := range allModels {
+		if !DB.Migrator().HasTable(m) {
+			log.Printf("Failed to create table for %#v\n", m)
+			os.Exit(1)
+		}
+	}
+	users := []User{
+		{
+			TbUser: TbUser{
+				Name: "Wang", Tag: "student", Age: 18, Height: 185,
+			},
+			Card: TbCard{
+				Number: 1,
+			},
+			Company: TbCompany{
+				Address: "Shanghai", Name: "dong",
+			},
+			Languages: []*TbLanguage{
+				{Name: "ZH"},
+				{Name: "EN"},
+			},
+		},
+		{
+			TbUser: TbUser{
+				Name: "Zhang", Tag: "student", Age: 20, Height: 180,
+			},
+			Card: TbCard{
+				Number: 2,
+			},
+			Company: TbCompany{
+				Address: "Shanghai", Name: "dong",
+			},
+			Languages: []*TbLanguage{
+				{Name: "ZH"},
+			},
+		},
+		{
+			TbUser: TbUser{
+				Name: "Li", Tag: "teacher", Age: 30, Height: 155, CompanyID: 1,
+			},
+			Card: TbCard{
+				Number: 3,
+			},
+		},
+		{
+			TbUser: TbUser{
+				Name: "Liu", Tag: "boss", Age: 35, Height: 175, CompanyID: 2,
+			},
+			Card: TbCard{
+				Number: 4,
+			},
+		},
+	}
+	DB.Save(&users)
+
+	res := []string{
+		fmt.Sprintf("INSERT INTO `company` (`created_at`,`updated_at`,`deleted_at`,`address`,`name`) VALUES (%d,%d,'0','Shanghai','dong'),(%d,%d,'0','Shanghai','dong') ON DUPLICATE KEY UPDATE `id`=`id`", users[0].Company.CreatedAt, users[0].Company.UpdatedAt, users[1].Company.CreatedAt, users[1].Company.UpdatedAt),
+		"INSERT INTO `card` (`user_id`,`number`) VALUES (1,1),(2,2),(3,3),(4,4) ON DUPLICATE KEY UPDATE `user_id`=VALUES(`user_id`)",
+		"INSERT INTO `language` (`name`) VALUES ('ZH'),('EN'),('ZH') ON DUPLICATE KEY UPDATE `id`=`id`",
+		"INSERT INTO `user_languages` (`user_id`,`language_id`) VALUES (1,1),(1,2),(2,3) ON DUPLICATE KEY UPDATE `user_id`=`user_id`",
+		"INSERT INTO `user` (`company_id`,`name`,`tag`,`age`,`height`) VALUES (1,'Wang','student',18,185),(2,'Zhang','student',20,180),(1,'Li','teacher',30,155),(2,'Liu','boss',35,175) ON DUPLICATE KEY UPDATE `company_id`=VALUES(`company_id`),`name`=VALUES(`name`),`tag`=VALUES(`tag`),`age`=VALUES(`age`),`height`=VALUES(`height`)",
+	}
+	for key, item := range res {
+		if sql := DB.Logger.(*Diary).LastSql(len(res)-key); sql != item{
+			log.Printf("Failed to create data for `%s` != `%s`\n", sql, item)
+			os.Exit(1)
+		}
+	}
+}
 
 // user
 type TbUser struct {
@@ -161,12 +228,12 @@ type TbUser struct {
 	Name      string
 	Tag       string
 	Age       int
-	Height    string
+	Height    int
 }
 
 // company
 type TbCompany struct {
-	TimeFieldsModel
+	fire.TimeFieldsModel
 	ID      uint `gorm:"primarykey"`
 	Address string
 	Name    string
@@ -185,9 +252,9 @@ type TbLanguage struct {
 	Name string
 }
 
-// 当使用 GORM 的 AutoMigrate 为 User 创建表时，GORM 会自动创建连接表。这里只是展示
-// user_language
-//type TbUserLanguage struct {
-//	LanguageId uint
-//	UserId     uint
-//}
+//当使用 GORM 的 AutoMigrate 为 User 创建表时，GORM 会自动创建连接表。这里只是展示
+//user_language
+type TbUserLanguages struct {
+	LanguageId uint
+	UserId     uint
+}
