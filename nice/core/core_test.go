@@ -6,6 +6,7 @@ package core_test
 
 import (
 	"fmt"
+	"github.com/lifegit/go-gulu/v2/nice/core"
 	"testing"
 	"time"
 )
@@ -31,7 +32,7 @@ func TestScheduler(t *testing.T) {
 
 	// also , you can create a your new scheduler,
 	// to run two scheduler concurrently
-	tasks := NewScheduler()
+	tasks := core.NewScheduler()
 	tasks.Every(1).Seconds().Do(func() {
 		fmt.Println(time.Now().Unix())
 	})

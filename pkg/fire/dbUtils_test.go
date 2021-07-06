@@ -5,6 +5,7 @@
 package fire_test
 
 import (
+	"github.com/lifegit/go-gulu/v2/pkg/fire"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -14,34 +15,34 @@ func TestFormatColumn(t *testing.T) {
 
 	// column
 	success = "`a1`"
-	res = FormatColumn("a1")
+	res = fire.FormatColumn("a1")
 	assert.Equal(t, res, success)
-	res = FormatColumn("`a1`")
+	res = fire.FormatColumn("`a1`")
 	assert.Equal(t, res, success)
 
 	// table column
 	success = "`table`.`a1`"
-	res = FormatColumn("table.a1")
+	res = fire.FormatColumn("table.a1")
 	assert.Equal(t, res, success)
-	res = FormatColumn("`table`.`a1`")
+	res = fire.FormatColumn("`table`.`a1`")
 	assert.Equal(t, res, success)
-	res = FormatColumn("`table`.a1")
+	res = fire.FormatColumn("`table`.a1")
 	assert.Equal(t, res, success)
-	res = FormatColumn("table.`a1`")
+	res = fire.FormatColumn("table.`a1`")
 	assert.Equal(t, res, success)
 }
 
 func TestWhereCompare(t *testing.T) {
-	DBDryRun.WhereCompare("age", 18, CompareAboutEqual).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareAboutEqual).Model(TbUser{}).Take(&TbUser{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` >= 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, CompareAbout).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareAbout).Model(TbUser{}).Take(&TbUser{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` > 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, CompareLessEqual).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareLessEqual).Model(TbUser{}).Take(&TbUser{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` <= 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, CompareLess).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareLess).Model(TbUser{}).Take(&TbUser{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` < 18 LIMIT 1")
 }
 
@@ -64,12 +65,12 @@ func TestRange(t *testing.T) {
 }
 
 func TestUpdateArithmetic(t *testing.T) {
-	DBDryRun.Model(TbUser{}).Where(TbUser{ID: 1}).Updates(UpdateArithmetic("age", 2, ArithmeticIncrease))
+	DBDryRun.Model(TbUser{}).Where(TbUser{ID: 1}).Updates(fire.UpdateArithmetic("age", 2, fire.ArithmeticIncrease))
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "UPDATE `user` SET `age`=`age` + 2 WHERE `user`.`id` = 1")
 }
 
 func TestOrderByColumn(t *testing.T) {
-	DBDryRun.OrderByColumn("age", OrderAsc).Model(TbUser{}).Find(&[]TbUser{})
+	DBDryRun.OrderByColumn("age", fire.OrderAsc).Model(TbUser{}).Find(&[]TbUser{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` ORDER BY `age` asc")
 }
 
@@ -148,7 +149,7 @@ func TestAssociationsManyToMany(t *testing.T) {
 		res := &[]User{}
 		DB.PreloadAll().Find(res)
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(3), "SELECT * FROM `user_languages` WHERE `user_languages`.`user_id` IN (1,2,3,4)")
-		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `language` WHERE `language`.`id` IN (1,2)")
+		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `language` WHERE `language`.`id` IN (1,2,3)")
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(), "SELECT * FROM `user`")
 	}()
 
@@ -157,8 +158,8 @@ func TestAssociationsManyToMany(t *testing.T) {
 	func() {
 		res := &[]Language{}
 		DB.PreloadAll().Find(res)
-		assert.Equal(t, DB.Logger.(*Diary).LastSql(3), "SELECT * FROM `user_languages` WHERE `user_languages`.`language_id` IN (1,2)")
-		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `user` WHERE `user`.`id` IN (1,2,3,4)")
+		assert.Equal(t, DB.Logger.(*Diary).LastSql(3), "SELECT * FROM `user_languages` WHERE `user_languages`.`language_id` IN (1,2,3)")
+		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `user` WHERE `user`.`id` IN (1,2)")
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(), "SELECT * FROM `language`")
 	}()
 }

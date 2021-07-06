@@ -20,26 +20,26 @@ import (
 
 // 常见的curd工具集，快速助力业务开发。
 
-func (d *DbUtils) IsExists(model interface{}) bool {
+func (d *Fire) IsExists(model interface{}) bool {
 	var s interface{}
 	d.Model(model).Where(model).Select("1").Take(&s)
 
 	return s != nil
 }
 
-func (d *DbUtils) CrudOne(model interface{}, callData interface{}) (err error) {
+func (d *Fire) CrudOne(model interface{}, callData interface{}) (err error) {
 	err = d.Model(model).Where(model).Take(callData).Error
 
 	return
 }
 
-func (d *DbUtils) CrudAll(model interface{}, callListData interface{}) (err error) {
+func (d *Fire) CrudAll(model interface{}, callListData interface{}) (err error) {
 	err = d.Model(model).Where(model).Find(callListData).Error
 
 	return
 }
 
-func (d *DbUtils) CrudAllPage(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
+func (d *Fire) CrudAllPage(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
 	pageResult.Init(page...)
 
 	d.Model(model).Where(model).Count(&pageResult.Total)
@@ -51,15 +51,15 @@ func (d *DbUtils) CrudAllPage(model interface{}, callListData interface{}, page 
 	return
 }
 
-func (d *DbUtils) CrudOnePreloadJoin(model interface{}, callData interface{}) (err error) {
+func (d *Fire) CrudOnePreloadJoin(model interface{}, callData interface{}) (err error) {
 	return d.PreloadJoin(model).Take(callData).Error
 }
 
-func (d *DbUtils) CrudAllPreloadJoin(model interface{}, callListData interface{}) (err error) {
+func (d *Fire) CrudAllPreloadJoin(model interface{}, callListData interface{}) (err error) {
 	return d.PreloadJoin(model).Find(callListData).Error
 }
 
-func (d *DbUtils) CrudAllPagePreloadJoin(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
+func (d *Fire) CrudAllPagePreloadJoin(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
 	pageResult.Init(page...)
 
 	tx := d.PreloadJoin(model).Session(&gorm.Session{})
@@ -71,15 +71,15 @@ func (d *DbUtils) CrudAllPagePreloadJoin(model interface{}, callListData interfa
 	return
 }
 
-func (d *DbUtils) CrudOnePreloadAll(model interface{}, callData interface{}) (err error) {
+func (d *Fire) CrudOnePreloadAll(model interface{}, callData interface{}) (err error) {
 	return d.PreloadAll().Where(model).Take(callData).Error
 }
 
-func (d *DbUtils) CrudAllPreloadAll(model interface{}, callListData interface{}) (err error) {
+func (d *Fire) CrudAllPreloadAll(model interface{}, callListData interface{}) (err error) {
 	return d.PreloadAll().Where(model).Find(callListData).Error
 }
 
-func (d *DbUtils) CrudAllPagePreloadAll(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
+func (d *Fire) CrudAllPagePreloadAll(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
 	pageResult.Init(page...)
 
 	tx := d.PreloadAll().Model(model).Where(model)
@@ -91,13 +91,13 @@ func (d *DbUtils) CrudAllPagePreloadAll(model interface{}, callListData interfac
 	return
 }
 
-func (d *DbUtils) CrudCount(model interface{}) (count int64, err error) {
+func (d *Fire) CrudCount(model interface{}) (count int64, err error) {
 	err = d.Model(model).Where(model).Count(&count).Error
 
 	return
 }
 
-func (d *DbUtils) CrudSum(model interface{}, column string) (sum float32, err error) {
+func (d *Fire) CrudSum(model interface{}, column string) (sum float32, err error) {
 	err = d.Model(model).Where(model).Select(fmt.Sprintf("IFNULL(SUM(`%s`),0)", column)).Find(&sum).Error
 
 	return
@@ -108,7 +108,7 @@ type M map[string]interface{}
 // updates support M(or map[string]interface{}) and struct
 // support gorm.Db.Select() and gorm.Db.Omit()
 // TODO: struct only update non-zero fields
-func (d *DbUtils) CrudUpdate(model interface{}, updates ...interface{}) (err error) {
+func (d *Fire) CrudUpdate(model interface{}, updates ...interface{}) (err error) {
 	// toMap
 	m := make(M)
 	mTemp := make(M)
@@ -185,7 +185,7 @@ func (d *DbUtils) CrudUpdate(model interface{}, updates ...interface{}) (err err
 	return tx.Error
 }
 
-func (d *DbUtils) CrudDelete(model interface{}) (err error) {
+func (d *Fire) CrudDelete(model interface{}) (err error) {
 	// WARNING: When there is no condition WHERE, error is gorm.ErrMissingWhereClause("WHERE conditions required"), so you can safely delete it.
 	err = d.Where(model).Delete(model).Error
 
