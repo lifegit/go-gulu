@@ -5,7 +5,7 @@
 package pagination
 
 import (
-	"go-gulu/dbTools/tool/order"
+	"github.com/lifegit/go-gulu/dbTools/tool/order"
 )
 
 type Param struct {

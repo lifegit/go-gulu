@@ -6,7 +6,7 @@ package dbUtils
 
 import (
 	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/tool/where"
+	"github.com/lifegit/go-gulu/dbTools/tool/where"
 )
 
 type DbWheres struct {

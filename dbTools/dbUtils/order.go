@@ -5,7 +5,7 @@
 package dbUtils
 
 import (
-	"go-gulu/dbTools/tool/order"
+	"github.com/lifegit/go-gulu/dbTools/tool/order"
 	"github.com/jinzhu/gorm"
 )
 

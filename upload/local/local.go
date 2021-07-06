@@ -7,8 +7,8 @@ package local
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-gulu/file"
-	"go-gulu/upload"
+	"github.com/lifegit/go-gulu/file"
+	"github.com/lifegit/go-gulu/upload"
 	"io"
 	"os"
 	"strconv"

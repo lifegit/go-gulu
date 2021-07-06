@@ -7,10 +7,10 @@ package dbTools
 import (
 	"fmt"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"go-gulu/dbTools/dbUtils"
-	"go-gulu/dbTools/tool/join"
-	"go-gulu/dbTools/tool/where"
-	"go-gulu/pagination"
+	"github.com/lifegit/go-gulu/dbTools/dbUtils"
+	"github.com/lifegit/go-gulu/dbTools/tool/join"
+	"github.com/lifegit/go-gulu/dbTools/tool/where"
+	"github.com/lifegit/go-gulu/pagination"
 	"testing"
 	"time"
 )

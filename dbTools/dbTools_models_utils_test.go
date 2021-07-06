@@ -7,7 +7,7 @@ package dbTools
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
-	"go-gulu/dbTools/hoos"
+	"github.com/lifegit/go-gulu/dbTools/hoos"
 	"log"
 )
 

@@ -7,7 +7,7 @@ package app
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
-	"go-gulu/pagination"
+	"github.com/lifegit/go-gulu/pagination"
 	"net/http"
 	"strconv"
 )
