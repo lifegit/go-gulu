@@ -3,14 +3,17 @@ module github.com/lifegit/go-gulu/v2
 go 1.16
 
 require (
+	github.com/PuerkitoBio/goquery v1.5.1
 	github.com/aliyun/alibaba-cloud-sdk-go v1.61.1168
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.8+incompatible
 	github.com/baiyubin/aliyun-sts-go-sdk v0.0.0-20180326062324-cfa1a18b161f // indirect
+	github.com/chromedp/chromedp v0.7.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/gin-gonic/gin v1.7.2
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-redis/redis v6.15.9+incompatible
+	github.com/gocolly/colly/v2 v2.1.0
 	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.12
 	github.com/jinzhu/gorm v1.9.16
