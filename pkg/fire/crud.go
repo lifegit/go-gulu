@@ -7,6 +7,7 @@ package fire
 import (
 	"errors"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/imdario/mergo"
 	"github.com/lifegit/go-gulu/v2/conv/arrayconv"
 	"github.com/lifegit/go-gulu/v2/conv/structureconv"
@@ -20,11 +21,55 @@ import (
 
 // 常见的curd工具集，快速助力业务开发。
 
-func (d *Fire) IsExists(model interface{}) bool {
-	var s interface{}
-	d.Model(model).Where(model).Select("1").Take(&s)
+type validateOnce struct {
+	*validator.Validate
+	once sync.Once
+}
 
-	return s != nil
+var validate validateOnce
+
+// model support Array,Slice,Struct
+// every struct support tag `gormCreate` validator.Struct()
+func (d *Fire) CrudCreate(model interface{}, batchSize ...int) (err error) {
+	validate.once.Do(func() {
+		validate.Validate = validator.New()
+		validate.SetTagName("gormCreate")
+	})
+
+	reflectValue := reflect.Indirect(reflect.ValueOf(model))
+	switch reflectValue.Kind() {
+	case reflect.Array, reflect.Slice:
+		// check
+		for i := 0; i < reflectValue.Len(); i++ {
+			o := reflectValue.Index(i).Interface()
+			if err = validate.Struct(o); err != nil {
+				return
+			}
+		}
+		// batchSize
+		batch := 20
+		if batchSize != nil {
+			batch = batchSize[0]
+		} else if d.CreateBatchSize != 0 {
+			batch = d.CreateBatchSize
+		}
+		d.CreateInBatches(model, batch)
+	default:
+		// check
+		if err = validate.Struct(model); err != nil {
+			return
+		}
+		err = d.Create(model).Error
+	}
+
+	return
+}
+
+func (d *Fire) IsExists(model interface{}) bool {
+	v := reflect.New(reflect.ValueOf(model).Type()).Elem()
+	tx := d.Model(model).Where(model).Select("1").Take(&v)
+
+	return tx.RowsAffected >= 1
 }
 
 func (d *Fire) CrudOne(model interface{}, callData interface{}) (err error) {
@@ -47,6 +92,8 @@ func (d *Fire) CrudAllPage(model interface{}, callListData interface{}, page ...
 		d.Statement.SQL = strings.Builder{}
 		d.Offset(pageResult.GetOffset()).Limit(pageResult.PageSize).Find(callListData)
 	}
+
+	pageResult.Data = callListData
 
 	return
 }
@@ -105,7 +152,7 @@ func (d *Fire) CrudSum(model interface{}, column string) (sum float32, err error
 
 type M map[string]interface{}
 
-// updates support M(or map[string]interface{}) and struct
+// updates support (M or map[string]interface{}) and struct
 // support gorm.Db.Select() and gorm.Db.Omit()
 // TODO: struct only update non-zero fields
 func (d *Fire) CrudUpdate(model interface{}, updates ...interface{}) (err error) {
@@ -183,6 +230,23 @@ func (d *Fire) CrudUpdate(model interface{}, updates ...interface{}) (err error)
 	}
 
 	return tx.Error
+}
+
+// Make sure that all primary keys are not zero when updating
+func (d *Fire) CrudUpdatePrimaryKey(model interface{}, updates ...interface{}) (err error) {
+	sch, err := schema.Parse(model, &sync.Map{}, schema.NamingStrategy{})
+	if err != nil {
+		return
+	}
+
+	for _, field := range sch.PrimaryFields {
+		if _, isZero := field.ValueOf(reflect.ValueOf(model)); isZero {
+			return errors.New(fmt.Sprintf("primary key %s is zero", field.Name))
+		}
+	}
+
+	tx := NewInstance(d.Limit(1))
+	return tx.CrudUpdate(model, updates...)
 }
 
 func (d *Fire) CrudDelete(model interface{}) (err error) {

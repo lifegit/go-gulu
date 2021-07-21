@@ -1,9 +1,12 @@
 package mwJwt
 
 import (
+	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/lifegit/go-gulu/v2/pkg/jwt"
-	"net/http"
+	"github.com/mitchellh/mapstructure"
+	"reflect"
 	"strings"
 )
 
@@ -18,31 +21,34 @@ type MwJwt struct {
 	secret   string
 }
 
-func NewJwtMiddleware(tokenKey, appName, secret string, ginKey string) MwJwt {
+func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, abortFunc func(error) (code int, jsonObj interface{})) MwJwt {
 	return MwJwt{
 		Middleware: func(c *gin.Context) {
-			//c.Next()
-			//return
-			//source header or query
-			hToken := c.GetHeader(tokenKey)
-			if hToken == "" {
-				hToken = c.Query(tokenKey)
+			// header or query
+			token := c.GetHeader(tokenKey)
+			if token == "" {
+				token = c.Query(tokenKey)
 			}
-			if len(hToken) < bearerLength {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": tokenKey + " has not Bearer token"})
+			if len(token) < bearerLength {
+				c.AbortWithStatusJSON(abortFunc(errors.New(fmt.Sprintf("%s has not Bearer token", tokenKey))))
 				return
 			}
-			token := strings.TrimSpace(hToken)
-			user, err := jwt.Parse(token, appName, secret)
+			token = strings.TrimSpace(token)
+			token = strings.TrimPrefix(token, tokenPrefix)
+			value, err := jwt.Parse(token, appName, secret) // value is map[string]interface{}
 			if err != nil {
-				c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"msg": err.Error()})
+				c.AbortWithStatusJSON(abortFunc(err))
 				return
 			}
 
-			c.Set(ginKey, user)
+			data := reflect.New(p).Elem().Interface()
+			if err := mapstructure.Decode(value, &data); err != nil {
+				c.AbortWithStatusJSON(abortFunc(err))
+				return
+			}
 
+			c.Set(ginKey, data)
 			c.Next()
-			// after request
 		},
 		tokenKey: tokenKey,
 		appName:  appName,
@@ -50,6 +56,9 @@ func NewJwtMiddleware(tokenKey, appName, secret string, ginKey string) MwJwt {
 	}
 }
 
-func (j *MwJwt) GenerateToken(data interface{}, expireHour int) (*jwt.JwtObj, error) {
-	return jwt.GenerateToken(data, j.appName, j.secret, j.tokenKey, expireHour)
+func (j *MwJwt) GenerateToken(data interface{}, expireHour int) (res *jwt.JwtObj, e error) {
+	if res, e = jwt.GenerateToken(data, j.appName, j.secret, j.tokenKey, expireHour); e == nil {
+		res.Token = tokenPrefix + res.Token
+	}
+	return
 }

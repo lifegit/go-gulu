@@ -55,7 +55,6 @@ func SelectionPixMap(element *goquery.Selection, key string, value string, m M, 
 	}
 }
 
-
 func TrimAll(s string, cutset ...string) string {
 	if s == "" {
 		return s

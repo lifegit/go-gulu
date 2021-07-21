@@ -55,8 +55,9 @@ func NewEngine(chanLen int, fail ...Fail) *Engine {
 func (e *Engine) Producer(data Queue) {
 	ch := make(chan bool)
 	e.producer(data, ch)
-	<- ch
+	<-ch
 }
+
 // 生产
 func (e *Engine) producer(data Queue, okChan ...chan bool) {
 	e.producerLen++
@@ -64,7 +65,7 @@ func (e *Engine) producer(data Queue, okChan ...chan bool) {
 		e.data <- data
 		e.producerLen--
 
-		if okChan != nil{
+		if okChan != nil {
 			okChan[0] <- true
 		}
 	}()

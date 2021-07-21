@@ -23,7 +23,6 @@ func TestProxy(t *testing.T) {
 	p = proxy.NewProxy(proxy.SchemaSocket5, "username:password", "proxyserver.com:31280")
 	assert.Equal(t, p.ToString(), "socks5://username:password@proxyserver.com:31280")
 
-
 	p = proxy.NewProxy(proxy.SchemaHttp, "", "192.168.1.1:8080")
 	assert.Equal(t, p.ToString(), "http://192.168.1.1:8080")
 
@@ -39,8 +38,7 @@ func TestTool(t *testing.T) {
 	_ = chromeDpProxy()
 }
 
-
-func collyProxy (proxy ...proxy.Proxy) (err error) {
+func collyProxy(proxy ...proxy.Proxy) (err error) {
 	c := colly.NewCollector()
 	if proxy != nil {
 		_ = c.SetProxy(proxy[0].ToString())
@@ -50,7 +48,7 @@ func collyProxy (proxy ...proxy.Proxy) (err error) {
 
 	})
 
-	if e := c.Visit("https://www.baidu.com/"); e != nil{
+	if e := c.Visit("https://www.baidu.com/"); e != nil {
 		err = e
 	}
 

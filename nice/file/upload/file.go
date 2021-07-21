@@ -6,6 +6,7 @@ package upload
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/lifegit/go-gulu/v2/nice/crypto"
 	"github.com/lifegit/go-gulu/v2/nice/file"
 	"github.com/lifegit/go-gulu/v2/nice/rand"
@@ -15,6 +16,16 @@ import (
 	"strings"
 	"time"
 )
+
+var (
+	AllowImageExts = []string{".jpeg", ".jpg", ".png", ".bmp", ".gif"}
+	AllowAnyExts   = []string{"*"}
+)
+
+type FileUpload interface {
+	Upload(c *gin.Context, attribute FileAttribute) File
+	Remove(path string) error
+}
 
 type File struct {
 	Error error
@@ -26,7 +37,7 @@ type FileAttribute struct {
 	Key     string
 	Exts    []string
 	DirPath string
-	MaxSize int64
+	MaxByte int64
 }
 
 // 使用md5随机生成一个文件名
@@ -43,7 +54,7 @@ func RandFileName(name string) string {
 func CheckFileExt(fileName string, exts *[]string) bool {
 	ext := file.GetExt(fileName)
 	for _, allowExt := range *exts {
-		if strings.ToUpper(string(allowExt)) == strings.ToUpper(ext) {
+		if strings.ToUpper(allowExt) == strings.ToUpper(ext) {
 			return true
 		}
 	}

@@ -51,7 +51,7 @@ func TestSelectionPixMap(t *testing.T) {
 
 	var p Pix
 	goqueryPix.SelectionPixMap(dom.Find("li"), "span.title", "span.content", goqueryPix.M{
-		"类": &p.Type, // vague
+		"类":  &p.Type, // vague
 		"名称": &p.Name,
 	}, func(value string, selection *goquery.Selection, key string) string {
 		return goqueryPix.TrimAll(value)

@@ -51,4 +51,3 @@ func chromedpGetResponseBody() (err error) {
 
 	return
 }
-

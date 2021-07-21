@@ -21,7 +21,8 @@ type PageParam struct {
 // 分页结果
 type PageResult struct {
 	Page
-	Total int64 `json:"total"`
+	Total int64       `json:"total"`
+	Data  interface{} `json:"data"`
 }
 
 func (p *PageResult) Init(page ...Page) {

@@ -33,53 +33,53 @@ func TestFormatColumn(t *testing.T) {
 }
 
 func TestWhereCompare(t *testing.T) {
-	DBDryRun.WhereCompare("age", 18, fire.CompareAboutEqual).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareAboutEqual).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` >= 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, fire.CompareAbout).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareAbout).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` > 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, fire.CompareLessEqual).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareLessEqual).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` <= 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, fire.CompareLess).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareLess).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` < 18 LIMIT 1")
 }
 
 func TestIn(t *testing.T) {
-	DBDryRun.WhereIn("age", []int{18, 19, 20}).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereIn("age", []int{18, 19, 20}).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age`  IN (18,19,20) LIMIT 1")
 
-	DBDryRun.WhereIn("age", []int{18, 19, 20}, true).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereIn("age", []int{18, 19, 20}, true).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` NOT IN (18,19,20) LIMIT 1")
 }
 
 func TestLike(t *testing.T) {
-	DBDryRun.WhereLike("name", "Wang").Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereLike("name", "Wang").Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `name` LIKE '%Wang%' LIMIT 1")
 }
 
 func TestRange(t *testing.T) {
-	DBDryRun.WhereRange("age", 10, 20).Model(TbUser{}).Take(&TbUser{})
+	DBDryRun.WhereRange("age", 10, 20).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` >= 10 AND `age` <= 20 LIMIT 1")
 }
 
 func TestUpdateArithmetic(t *testing.T) {
-	DBDryRun.Model(TbUser{}).Where(TbUser{ID: 1}).Updates(fire.UpdateArithmetic("age", 2, fire.ArithmeticIncrease))
+	DBDryRun.Model(User{}).Where(User{ID: 1}).Updates(fire.UpdateArithmetic("age", 2, fire.ArithmeticIncrease))
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "UPDATE `user` SET `age`=`age` + 2 WHERE `user`.`id` = 1")
 }
 
 func TestOrderByColumn(t *testing.T) {
-	DBDryRun.OrderByColumn("age", fire.OrderAsc).Model(TbUser{}).Find(&[]TbUser{})
+	DBDryRun.OrderByColumn("age", fire.OrderAsc).Model(User{}).Find(&[]User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` ORDER BY `age` asc")
 }
 
 func TestPreloadJoin(t *testing.T) {
-	type User struct {
-		TbUser
-		Company TbCompany
+	type TbUser struct {
+		User
+		Company Company
 	}
-	DBDryRun.PreloadJoin(User{}).WhereCompare("user.age", 18).Find(&[]User{})
+	DBDryRun.PreloadJoin(TbUser{}).WhereCompare("user.age", 18).Find(&[]TbUser{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT `user`.`id`,`user`.`company_id`,`user`.`name`,`user`.`tag`,`user`.`age`,`user`.`height`,`Company`.`created_at` AS `Company__created_at`,`Company`.`updated_at` AS `Company__updated_at`,`Company`.`deleted_at` AS `Company__deleted_at`,`Company`.`id` AS `Company__id`,`Company`.`address` AS `Company__address`,`Company`.`name` AS `Company__name` FROM `user` LEFT JOIN `company` `Company` ON `user`.`company_id` = `Company`.`id` WHERE `user`.`age` = 18")
 }
 
@@ -88,11 +88,11 @@ func TestPreloadJoin(t *testing.T) {
 // 一个用户属于一个公司
 // https://gorm.io/zh_CN/docs/belongs_to.html
 func TestAssociationsBelongsTo(t *testing.T) {
-	type User struct {
-		TbUser
-		Company TbCompany
+	type TbUser struct {
+		User
+		Company Company
 	}
-	res := &[]User{}
+	res := &[]TbUser{}
 	DB.PreloadAll().Find(res)
 
 	assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `company` WHERE `company`.`id` IN (1,2) AND `company`.`deleted_at` = 0")
@@ -104,11 +104,11 @@ func TestAssociationsBelongsTo(t *testing.T) {
 // 一个用户有一张唱片
 // https://gorm.io/zh_CN/docs/has_one.html
 func TestAssociationsHasOne(t *testing.T) {
-	type User struct {
-		TbUser
-		Card TbCard
+	type TbUser struct {
+		User
+		Card Card
 	}
-	res := &[]User{}
+	res := &[]TbUser{}
 	DB.PreloadAll().Find(res)
 
 	assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `card` WHERE `card`.`user_id` IN (1,2,3,4)")
@@ -120,11 +120,11 @@ func TestAssociationsHasOne(t *testing.T) {
 // 一个用户有多张唱片
 // https://gorm.io/zh_CN/docs/has_many.html
 func TestAssociationsHasMany(t *testing.T) {
-	type User struct {
-		TbUser
-		Card []TbCard
+	type TbUser struct {
+		User
+		Card []Card
 	}
-	res := &[]User{}
+	res := &[]TbUser{}
 	DB.PreloadAll().Find(res)
 
 	assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `card` WHERE `card`.`user_id` IN (1,2,3,4)")
@@ -134,19 +134,19 @@ func TestAssociationsHasMany(t *testing.T) {
 // 分页多对多,`user_languages` 是连接表
 // https://gorm.io/zh_CN/docs/many_to_many.html
 func TestAssociationsManyToMany(t *testing.T) {
-	type Language struct {
-		TbLanguage
-		Users []*TbUser `gorm:"many2many:user_languages;"`
+	type TbLanguage struct {
+		Language
+		Users []*User `gorm:"many2many:user_languages;"`
 	}
-	type User struct {
-		TbUser
+	type TbUser struct {
+		User
 		Languages []*Language `gorm:"many2many:user_languages;"`
 	}
 
 	// 正向: 一个人会多种语言 user <- []language
 	// user.id -> user_languages.user_id,[]language_id -> language.id
 	func() {
-		res := &[]User{}
+		res := &[]TbUser{}
 		DB.PreloadAll().Find(res)
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(3), "SELECT * FROM `user_languages` WHERE `user_languages`.`user_id` IN (1,2,3,4)")
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `language` WHERE `language`.`id` IN (1,2,3)")
@@ -156,7 +156,7 @@ func TestAssociationsManyToMany(t *testing.T) {
 	// 反向: 一群人会一种语言 language <- []user
 	// language.id -> user_languages.language_id,[]user_id -> user.id
 	func() {
-		res := &[]Language{}
+		res := &[]TbLanguage{}
 		DB.PreloadAll().Find(res)
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(3), "SELECT * FROM `user_languages` WHERE `user_languages`.`language_id` IN (1,2,3)")
 		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `user` WHERE `user`.`id` IN (1,2)")

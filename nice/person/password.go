@@ -41,7 +41,7 @@ func (a *Password) RandSaltAndCode(privateKey string) error {
      // 注: salt 长度必须为16
 */
 // 解密密码与验证
-func (a *Password) DecryptAndCheck(hashedPassword string, inputPass string) (bool, error) {
+func (a *Password) DecryptAndCheck(hashedPassword string, inputPass string) error {
 	// step1: decrypt pass
 	dSalt := ""
 	sSalt := ""
@@ -61,11 +61,11 @@ func (a *Password) DecryptAndCheck(hashedPassword string, inputPass string) (boo
 	// 密码解密
 	decryptPassword, err := crypto.AesDecryptSimple(inputPass, keyKey, a.Salt)
 	if err != nil {
-		return false, err
+		return err
 	}
 	decryptPassword, err = crypto.AesDecryptSimple(decryptPassword, keyValue[10:26], crypto.EncodeMD5(a.Salt)[0:16]) //26 = 10 + 16
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	decryptPassword = strings.Replace(decryptPassword, keyValue, "", 1)
@@ -75,11 +75,11 @@ func (a *Password) DecryptAndCheck(hashedPassword string, inputPass string) (boo
 }
 
 // 验证一个hash后的密码
-func (a *Password) Check(hashedPassword, password string) (bool, error) {
+func (a *Password) Check(hashedPassword, password string) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password)); err != nil {
-		return false, err
+		return err
 	}
-	return true, nil
+	return nil
 }
 
 // 加密密码

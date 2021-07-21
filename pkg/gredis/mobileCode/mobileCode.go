@@ -23,7 +23,6 @@ func New(tag string, redis *redis.Client, expire time.Duration) *MobileCode {
 		redis:  redis,
 	}
 }
-
 // 发送
 func (m *MobileCode) Send(sendFunc func() (MobileMes, error)) error {
 	// 发送验证码
@@ -33,18 +32,19 @@ func (m *MobileCode) Send(sendFunc func() (MobileMes, error)) error {
 	}
 
 	// 放到缓存
-	return m.redis.Set(sendMes.key(m.tag), sendMes.Code, m.expire).Err()
+	return m.redis.Set(tag(m.tag, sendMes.Mobile), sendMes.Code, m.expire).Err()
 }
-
-// 是否存在
+// 是否正确
 func (m *MobileCode) IsCheck(ms MobileMes) bool {
-	str, err := m.redis.Get(ms.key(m.tag)).Result()
-	if err != nil {
-		return false
-	}
+	str, _ := m.redis.Get(tag(m.tag, ms.Mobile)).Result()
 	return str == ms.Code
 }
-
+// 是否存在
+func (m *MobileCode) IsExist(mobile string) bool {
+	str, _ := m.redis.Get(tag(m.tag, mobile)).Result()
+	return str != ""
+}
+// 删除
 func (m *MobileCode) Del(mobile string) {
 	m.redis.Del(tag(m.tag, mobile))
 }

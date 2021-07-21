@@ -11,30 +11,40 @@ import (
 	"strconv"
 )
 
-func JsonError(c *gin.Context, msg string) {
-	c.AbortWithStatusJSON(http.StatusPreconditionFailed, gin.H{"msg": msg})
+type Result struct {
+	Code ErrCode     `json:"code"`
+	Msg  string      `json:"msg"`
+	Data interface{} `json:"data"`
 }
-func JsonErrorData(c *gin.Context, data interface{}, msg string) {
-	c.AbortWithStatusJSON(http.StatusPreconditionFailed, gin.H{"msg": msg, "data": data})
+
+// success
+func JsonSuccess(c *gin.Context) {
+	JsonData(c, gin.H{})
 }
 func JsonData(c *gin.Context, data interface{}) {
-	c.JSON(http.StatusOK, data)
+	c.JSON(http.StatusOK, Result{
+		Code: 200,
+		Msg:  "ok",
+		Data: data,
+	})
 }
 
-func JsonPagination(c *gin.Context, list interface{}, page interface{}) {
-	c.JSON(http.StatusOK, gin.H{"list": list, "page": page})
-}
+// fail
+type ErrCode int
 
-func JsonPaging(c *gin.Context, data interface{}, total int) {
-	c.JSON(http.StatusOK, gin.H{"data": data, "total": total})
+func JsonError(c *gin.Context, msg string, code ...ErrCode) {
+	JsonErrorData(c, gin.H{}, msg, code...)
 }
-
-func JsonPageResult(c *gin.Context, data interface{}, page interface{}) {
-	c.JSON(http.StatusOK, gin.H{"data": data, "page": page})
-}
-
-func JsonSuccess(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"msg": "ok"})
+func JsonErrorData(c *gin.Context, data interface{}, msg string, code ...ErrCode) {
+	o := ErrCode(-1)
+	if code != nil {
+		o = code[0]
+	}
+	c.AbortWithStatusJSON(http.StatusOK, Result{
+		Code: o,
+		Msg:  msg,
+		Data: data,
+	})
 }
 
 func HandleError(c *gin.Context, err error) bool {
