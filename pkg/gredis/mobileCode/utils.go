@@ -9,6 +9,12 @@ import (
 	"regexp"
 )
 
+type MobileMes struct {
+	Mobile string
+	Code   string
+}
+
+
 func tag(tag, mobile string) string {
 	return tag + mobile
 }

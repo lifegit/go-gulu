@@ -11,7 +11,7 @@ import (
 )
 
 func TestCreatedAt(t *testing.T) {
-	user := &TbCompany{
+	user := &Company{
 		Address: "Shanghai",
 		Name:    "lu",
 	}
@@ -22,7 +22,7 @@ func TestCreatedAt(t *testing.T) {
 }
 
 func TestUpdatedAt(t *testing.T) {
-	tx := DBDryRun.Where(TbCompany{Address: "Shanghai"}).Updates(TbCompany{Address: "Jinan"})
+	tx := DBDryRun.Where(Company{Address: "Shanghai"}).Updates(Company{Address: "Jinan"})
 	// `updated_at`=1624612236447
 	sql := fmt.Sprintf("UPDATE `company` SET `updated_at`=%d,`address`='Jinan' WHERE `company`.`address` = 'Shanghai'", tx.Statement.Vars[0])
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), sql)
@@ -30,12 +30,12 @@ func TestUpdatedAt(t *testing.T) {
 
 func TestDeletedAt(t *testing.T) {
 	// Delete
-	tx := DBDryRun.Delete(TbCompany{ID: 1})
+	tx := DBDryRun.Delete(Company{ID: 1})
 	// `deleted_at`=1624612236
 	sql := fmt.Sprintf("UPDATE `company` SET `deleted_at`=%d WHERE `company`.`id` = 1 AND `company`.`deleted_at` = 0", tx.Statement.Vars[0])
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), sql)
 
 	// Select
-	tx = DBDryRun.Model(TbCompany{}).Where(TbCompany{Address: "Shanghai"}).Find(nil)
+	tx = DBDryRun.Model(Company{}).Where(Company{Address: "Shanghai"}).Find(nil)
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `company` WHERE `company`.`address` = 'Shanghai' AND `company`.`deleted_at` = 0")
 }

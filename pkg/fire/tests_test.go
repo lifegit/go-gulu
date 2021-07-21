@@ -129,19 +129,19 @@ func (n *Diary) LastSql(position ...int) string {
 }
 
 func RunMigrations() {
-	type User struct {
-		TbUser
-		Card      TbCard
-		Company   TbCompany
-		Languages []*TbLanguage `gorm:"many2many:user_languages;"`
+	type TbUser struct {
+		User
+		Card      Card
+		Company   Company
+		Languages []*Language `gorm:"many2many:user_languages;"`
 	}
 
 	var err error
-	allModels := []interface{}{&TbUser{},&TbCard{}, &TbCompany{}, &TbLanguage{}, &User{}}
+	allModels := []interface{}{&User{}, &Card{}, &Company{}, &Language{}, &TbUser{}}
 	rand.Seed(time.Now().UnixNano())
 	rand.Shuffle(len(allModels), func(i, j int) { allModels[i], allModels[j] = allModels[j], allModels[i] })
 
-	if err = DB.Migrator().DropTable(append(allModels, &TbUserLanguages{})...); err != nil { // TbUserLanguages 链接表是自动生成的，所以这里需要删除一下
+	if err = DB.Migrator().DropTable(append(allModels, &UserLanguages{})...); err != nil { // UserLanguages 链接表是自动生成的，所以这里需要删除一下
 		log.Printf("Failed to drop table, got error %v\n", err)
 		os.Exit(1)
 	}
@@ -157,49 +157,49 @@ func RunMigrations() {
 			os.Exit(1)
 		}
 	}
-	users := []User{
+	users := []TbUser{
 		{
-			TbUser: TbUser{
+			User: User{
 				Name: "Wang", Tag: "student", Age: 18, Height: 185,
 			},
-			Card: TbCard{
+			Card: Card{
 				Number: 1,
 			},
-			Company: TbCompany{
+			Company: Company{
 				Address: "Shanghai", Name: "dong",
 			},
-			Languages: []*TbLanguage{
+			Languages: []*Language{
 				{Name: "ZH"},
 				{Name: "EN"},
 			},
 		},
 		{
-			TbUser: TbUser{
+			User: User{
 				Name: "Zhang", Tag: "student", Age: 20, Height: 180,
 			},
-			Card: TbCard{
+			Card: Card{
 				Number: 2,
 			},
-			Company: TbCompany{
+			Company: Company{
 				Address: "Shanghai", Name: "dong",
 			},
-			Languages: []*TbLanguage{
+			Languages: []*Language{
 				{Name: "ZH"},
 			},
 		},
 		{
-			TbUser: TbUser{
+			User: User{
 				Name: "Li", Tag: "teacher", Age: 30, Height: 155, CompanyID: 1,
 			},
-			Card: TbCard{
+			Card: Card{
 				Number: 3,
 			},
 		},
 		{
-			TbUser: TbUser{
+			User: User{
 				Name: "Liu", Tag: "boss", Age: 35, Height: 175, CompanyID: 2,
 			},
-			Card: TbCard{
+			Card: Card{
 				Number: 4,
 			},
 		},
@@ -214,7 +214,7 @@ func RunMigrations() {
 		"INSERT INTO `user` (`company_id`,`name`,`tag`,`age`,`height`) VALUES (1,'Wang','student',18,185),(2,'Zhang','student',20,180),(1,'Li','teacher',30,155),(2,'Liu','boss',35,175) ON DUPLICATE KEY UPDATE `company_id`=VALUES(`company_id`),`name`=VALUES(`name`),`tag`=VALUES(`tag`),`age`=VALUES(`age`),`height`=VALUES(`height`)",
 	}
 	for key, item := range res {
-		if sql := DB.Logger.(*Diary).LastSql(len(res)-key); sql != item{
+		if sql := DB.Logger.(*Diary).LastSql(len(res) - key); sql != item {
 			log.Printf("Failed to create data for `%s` != `%s`\n", sql, item)
 			os.Exit(1)
 		}
@@ -222,17 +222,17 @@ func RunMigrations() {
 }
 
 // user
-type TbUser struct {
+type User struct {
 	ID        uint `gorm:"primarykey"`
 	CompanyID int
-	Name      string
+	Name      string `gormCreate:"required"`
 	Tag       string
 	Age       int
 	Height    int
 }
 
 // company
-type TbCompany struct {
+type Company struct {
 	fire.TimeFieldsModel
 	ID      uint `gorm:"primarykey"`
 	Address string
@@ -240,21 +240,21 @@ type TbCompany struct {
 }
 
 // card
-type TbCard struct {
+type Card struct {
 	ID     uint `gorm:"primarykey"`
 	UserID uint
 	Number int
 }
 
 // language
-type TbLanguage struct {
+type Language struct {
 	ID   uint `gorm:"primarykey"`
 	Name string
 }
 
 //当使用 GORM 的 AutoMigrate 为 User 创建表时，GORM 会自动创建连接表。这里只是展示
 //user_language
-type TbUserLanguages struct {
+type UserLanguages struct {
 	LanguageId uint
 	UserId     uint
 }

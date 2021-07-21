@@ -101,8 +101,8 @@ func (p *LogFormatterParams) ResetColor() string {
 	return reset
 }
 
-func NewLoggerMiddlewareSmoothFail(isStdout bool, isWriter bool, writerDir string) gin.HandlerFunc {
-	res, err := NewLoggerMiddleware(isStdout, isWriter, writerDir)
+func NewLoggerMiddlewareSmoothFail(isStdout bool, writerDir string) gin.HandlerFunc {
+	res, err := NewLoggerMiddleware(isStdout, writerDir)
 	if err != nil {
 		logrus.WithError(err).WithField("writerDir", writerDir).Fatal("NewLoggerMiddlewareSmoothFail")
 	}
@@ -110,9 +110,9 @@ func NewLoggerMiddlewareSmoothFail(isStdout bool, isWriter bool, writerDir strin
 	return res
 }
 
-func NewLoggerMiddleware(isStdout bool, isWriter bool, writerDir string) (gin.HandlerFunc, error) {
+func NewLoggerMiddleware(isStdout bool, writerDir string) (gin.HandlerFunc, error) {
 	var writer io.Writer
-	if isWriter {
+	if writerDir != "" {
 		w, err := logging.NewRotateIO(writerDir, 5)
 		if err != nil {
 			return nil, err
@@ -150,7 +150,7 @@ func NewLoggerMiddleware(isStdout bool, isWriter bool, writerDir string) (gin.Ha
 			fmt.Fprint(os.Stdout, stdoutLogFormatter(param))
 		}
 
-		if isWriter {
+		if writer != nil {
 			fmt.Fprint(writer, fmt.Sprintln(string(bytes)))
 		}
 	}, nil

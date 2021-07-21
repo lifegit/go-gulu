@@ -15,7 +15,7 @@ type Count struct {
 	key        string
 }
 
-func New(key string, c *redis.Client, expireTime time.Duration) *Count {
+func NewCount(key string, c *redis.Client, expireTime time.Duration) *Count {
 	return &Count{
 		key:        key,
 		redis:      c,

@@ -8,7 +8,7 @@ import (
 	"github.com/speps/go-hashids"
 )
 
-func initHashids(salt string, length int) (*hashids.HashID) {
+func initHashids(salt string, length int) *hashids.HashID {
 	hd := hashids.NewData()
 	hd.Salt = salt
 	hd.MinLength = length

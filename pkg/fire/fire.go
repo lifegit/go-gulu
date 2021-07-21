@@ -50,10 +50,13 @@ func FormatColumn(column string) (res string) {
 	return
 }
 
-func (d *Fire) Close() {
-	if dbs, err := d.DB.DB(); err == nil {
-		_ = dbs.Close()
+func (d *Fire) Close() (err error) {
+	dbs, err := d.DB.DB()
+	if err != nil {
+		return
 	}
+
+	return dbs.Close()
 }
 
 // === SELECT ===

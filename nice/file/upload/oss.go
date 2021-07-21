@@ -2,15 +2,15 @@
 * @Author: TheLife
 * @Date: 2020-2-25 9:00 下午
  */
-package oss
+package upload
 
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"github.com/aliyun/aliyun-oss-go-sdk/oss"
 	"github.com/gin-gonic/gin"
-	upload2 "github.com/lifegit/go-gulu/v2/nice/file/upload"
-	"strconv"
+	"path"
 )
 
 type Oss struct {
@@ -18,7 +18,7 @@ type Oss struct {
 	domain string
 }
 
-func New(endpoint, accessKeyID, accessKeySecret, bucketName string, haveDomain string) (*Oss, error) {
+func NewOss(endpoint, accessKeyID, accessKeySecret, bucketName string, haveDomain string) (*Oss, error) {
 	client, err := oss.New(endpoint, accessKeyID, accessKeySecret)
 	if err != nil {
 		return nil, errors.New("oss-new 初始化失败")
@@ -28,44 +28,39 @@ func New(endpoint, accessKeyID, accessKeySecret, bucketName string, haveDomain s
 		return nil, errors.New("oss-bucket 初始化失败")
 	}
 	//-internal
-	domain := ""
 	if haveDomain == "" {
-		domain = "https://" + bucketName + "." + endpoint + "/"
-	} else if string(haveDomain[len(haveDomain)-1:]) != "/" {
-		domain = haveDomain + "/"
+		haveDomain = fmt.Sprintf("https://%s.%s/", bucketName, endpoint)
 	}
-
 	return &Oss{
 		bucket: bucket,
-		domain: domain,
+		domain: haveDomain,
 	}, nil
 }
 
-func (oss *Oss) Upload(c *gin.Context, attribute *upload2.FileAttribute) *upload2.File {
-	u := upload2.File{}
+func (oss *Oss) Upload(c *gin.Context, attribute FileAttribute) File {
+	u := File{}
 
 	f, image, err := c.Request.FormFile(attribute.Key)
 	if err != nil {
 		u.Error = errors.New("未上传文件")
-		return &u
+		return u
 	}
 	defer f.Close()
-	if !upload2.CheckFileExt(image.Filename, &attribute.Exts) {
+	if !CheckFileExt(image.Filename, &attribute.Exts) {
 		u.Error = errors.New("不支持此文件类型")
-		return &u
+		return u
 	}
 
-	if image.Size > attribute.MaxSize {
-		u.Error = errors.New("文件大小最大允许" + strconv.FormatInt(attribute.MaxSize/1024/1024, 10) + "M")
-		return &u
+	if image.Size > attribute.MaxByte {
+		u.Error = errors.New(fmt.Sprintf("文件大小最大允许%dM", attribute.MaxByte/1024/1024))
+		return u
 	}
 
 	run := 0
 	finalDirFileName := ""
-	imageName := ""
 	for {
-		imageName = upload2.RandFileName(image.Filename)
-		finalDirFileName = attribute.DirPath + imageName
+		imageName := RandFileName(image.Filename)
+		finalDirFileName = path.Join(attribute.DirPath, imageName)
 		if isExist, _ := oss.bucket.IsObjectExist(finalDirFileName); !isExist {
 			break
 		}
@@ -73,7 +68,7 @@ func (oss *Oss) Upload(c *gin.Context, attribute *upload2.FileAttribute) *upload
 		run++
 		if run >= 5 {
 			u.Error = errors.New("文件名无法构造")
-			return &u
+			return u
 		}
 	}
 
@@ -81,25 +76,21 @@ func (oss *Oss) Upload(c *gin.Context, attribute *upload2.FileAttribute) *upload
 	_, err = f.ReadAt(buf, 0)
 	if err != nil {
 		u.Error = errors.New("文件IO错误")
-		return &u
+		return u
 	}
 
 	err = oss.bucket.PutObject(finalDirFileName, bytes.NewReader(buf))
 	if err != nil {
 		u.Error = errors.New("无法保存文件")
-		return &u
+		return u
 	}
 
-	u.Url = oss.domain + finalDirFileName
+	u.Url = path.Join(oss.domain, finalDirFileName)
 	u.Save = finalDirFileName
 
-	return &u
+	return u
 }
 
-func (oss *Oss) Remove(saveFile string) (bool, error) {
-	if err := oss.bucket.DeleteObject(saveFile); err != nil {
-		return false, err
-	}
-
-	return true, nil
+func (oss *Oss) Remove(filename string) error {
+	return oss.bucket.DeleteObject(filename)
 }

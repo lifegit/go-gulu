@@ -15,6 +15,7 @@ type Tb struct {
 }
 
 func TestName(t *testing.T) {
+
 	err := paramValidator.ValidateCreate.Struct(Tb{})
 	assert.Error(t, err)
 }
