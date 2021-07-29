@@ -9,7 +9,7 @@ package fire
 // 筛选、排序参数
 type Param struct {
 	Params Params `form:"params" json:"params"`
-	Sort   Sort   `form:"sort" json:"sort" binding:"omitempty,eq=1,dive,keys,required,endkeys,eq=ascend|eq=descend"`
+	Sort   Sort   `form:"sort" json:"sort" binding:"omitempty,max=1,dive,keys,required,endkeys,eq=ascend|eq=descend"`
 }
 
 // 分页参数
@@ -41,7 +41,7 @@ func (p *PageResult) Init(page ...Page) {
 // 页
 type Page struct {
 	Current  int `json:"current" form:"current"`
-	PageSize int `json:"page_size" form:"page_size"`
+	PageSize int `json:"pageSize" form:"pageSize"`
 }
 
 func (p *Page) GetOffset() int {

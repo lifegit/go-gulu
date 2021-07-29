@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm/clause"
 	"reflect"
 	"strings"
+	"unicode"
 )
 
 // 对 gorm.DB 的补充封装，实现更爽快的使用。属于基础层服务代码。
@@ -96,6 +97,28 @@ func (d *Fire) Allow(param Param, allow Allow) *Fire {
 	tx = allow.AllowSort(param.Sort, tx)
 
 	return tx
+}
+func toCamel2Case(m map[string]interface{})  {
+	for key, value := range m {
+		if !strings.Contains(key, "_") {
+			delete(m, key)
+			m[Camel2Case(key)] = value
+		}
+	}
+}
+func Camel2Case(name string) string {
+	buffer := strings.Builder{}
+	for i, r := range name {
+		if unicode.IsUpper(r) {
+			if i != 0 {
+				buffer.WriteString("_")
+			}
+			buffer.WriteRune(unicode.ToLower(r))
+		} else {
+			buffer.WriteRune(r)
+		}
+	}
+	return buffer.String()
 }
 
 type CompareType string

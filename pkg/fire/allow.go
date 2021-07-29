@@ -22,10 +22,12 @@ type Allow struct {
 	Sorts []string
 }
 
-type Sort map[string]string
+type Sort map[string]interface{}
 
 // allowSort
 func (a *Allow) AllowSort(sort Sort, db *Fire) *Fire {
+	toCamel2Case(sort)
+
 	for _, condItem := range a.Sorts {
 		for column, value := range sort {
 			if column == condItem {
@@ -41,8 +43,10 @@ type Params map[string]interface{}
 
 // allowParams
 func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
-	// used Allow loop: fixed SQL order, we can put the condition of low energy consumption in the front
+	// used Allow.key loop: fixed SQL order, we can put the condition of low energy consumption in the front
 	// not used Params loop: range map is no order, it may result in different SQL generated each time
+
+	toCamel2Case(params)
 
 	// where
 	for _, condItem := range a.Where {

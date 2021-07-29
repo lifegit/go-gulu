@@ -3,7 +3,7 @@
 * @Date: 2020-3-27 6:59 下午
 * 统计代码行数
  */
-package dashboard
+package app
 
 import (
 	"bufio"

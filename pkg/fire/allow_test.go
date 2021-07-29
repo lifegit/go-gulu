@@ -27,13 +27,15 @@ func TestAllow(t *testing.T) {
 	}
 
 	user := &[]User{}
-	_, _ = DBDryRun.OrderByColumn("age", fire.OrderAsc).Allow(param, fire.Allow{
-		Where: []string{"age"},
-		Like:  []string{"name"},
-		Range: []string{"id"},
-		In:    []string{"tag"},
-		Sorts: []string{"age"},
-	}).CrudAllPage(User{}, user)
+	_, _ = DBDryRun.OrderByColumn("age", fire.OrderAsc).
+		Allow(param, fire.Allow{
+			Where: []string{"age"},
+			Like:  []string{"name"},
+			Range: []string{"id"},
+			In:    []string{"tag"},
+			Sorts: []string{"age"},
+		}).
+		CrudAllPage(User{}, user)
 
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(2), "SELECT count(*) FROM `user` WHERE `age` = 18 AND (`id` >= 1 AND `id` <= 999) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Mr%'")
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` = 18 AND (`id` >= 1 AND `id` <= 999) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Mr%' ORDER BY `age` desc LIMIT 20")

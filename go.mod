@@ -11,7 +11,10 @@ require (
 	github.com/chromedp/chromedp v0.7.3
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/getkin/kin-openapi v0.66.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/gin-gonic/gin v1.7.2
+	github.com/go-openapi/spec v0.19.14
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gocolly/colly/v2 v2.1.0
@@ -33,6 +36,9 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.8.1
 	github.com/stretchr/testify v1.7.0
+	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14
+	github.com/swaggo/gin-swagger v1.3.0
+	github.com/swaggo/swag v1.7.0
 	github.com/wenzhenxi/gorsa v0.0.0-20210524035706-528c7050d703
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect

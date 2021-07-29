@@ -7,6 +7,7 @@ package file
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -26,6 +27,29 @@ func ExtIsImg(extension string) bool {
 		return true
 	}
 	return false
+}
+
+// 写出文件
+func WriteFile(b []byte, file string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	_, err = f.Write(b)
+	return err
+}
+
+// 读取文件
+func ReadFile(fileName string) (string, error) {
+	f, err := os.Open(fileName)
+	if err != nil {
+		return "", nil
+	}
+	res, err := ioutil.ReadAll(f)
+
+	return string(res), err
 }
 
 // 获取一个文件的字节长度

@@ -41,13 +41,13 @@ func TestPageParamAllowCrudAllPage(t *testing.T) {
 			return
 		}
 
-		out.JsonPageResult(c, userList, pageResult)
+		out.JsonData(c, pageResult)
 	})
 	go router.Run(":9991")
 
 	// client
 	client := &http.Client{}
-	_, _ = client.Get(`http://127.0.0.1:9991/?current=3&page_size=5&params={"height":[160,190],"name":"Wang","age":18,"tag":["学生","儿子","青年"]}&sort={"age":"ascend"}`)
+	_, _ = client.Get(`http://127.0.0.1:9991/?current=3&pageSize=5&params={"height":[160,190],"name":"Wang","age":18,"tag":["学生","儿子","青年"]}&sort={"age":"ascend"}`)
 }
 
 // 分页-外建（join）
@@ -87,7 +87,7 @@ func TestPageParamAllowPreloadJoin(t *testing.T) {
 
 	// client
 	client := &http.Client{}
-	_, _ = client.Get(`http://127.0.0.1:9992/?current=3&page_size=5&params={"height":[160,190],"user.name":"Wang","company.name":"Shanghai","age":18,"tag":["student","儿子","青年"]}&sort={"age":"ascend"}`)
+	_, _ = client.Get(`http://127.0.0.1:9992/?current=3&pageSize=5&params={"height":[160,190],"user.name":"Wang","company.name":"Shanghai","age":18,"tag":["student","儿子","青年"]}&sort={"age":"ascend"}`)
 }
 
 //分页-外键（多次查询）
