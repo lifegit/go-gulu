@@ -1,14 +1,11 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/23 下午9:37
- */
+// Package fire /**
+// 重新定义 gorm.Model
+
 package fire
 
 import (
 	"gorm.io/plugin/soft_delete"
 )
-
-// 重新定义 gorm.Model
 
 type TimeFieldsEditModel struct {
 	// 13位毫秒时间戳

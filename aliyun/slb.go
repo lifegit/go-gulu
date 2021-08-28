@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-2-25 9:00 下午
- */
 package aliyun
 
 import (
@@ -26,7 +22,7 @@ func NewSlb(regionId, accessKeyID, accessKeySecret string) (client *AliSlbClient
 	return &AliSlbClient{c}, err
 }
 
-// 删除slb
+// DeleteLoadBalancer 删除slb
 func (c *AliSlbClient) DeleteLoadBalancer(balancerId string) (response *slb.DeleteLoadBalancerResponse, err error) {
 	request := slb.CreateDeleteLoadBalancerRequest()
 	request.Scheme = "https"
@@ -37,7 +33,7 @@ func (c *AliSlbClient) DeleteLoadBalancer(balancerId string) (response *slb.Dele
 	return
 }
 
-// 创建监听
+// CreateLoadBalancerTCPListener 创建监听
 func (c *AliSlbClient) CreateLoadBalancerTCPListener(balancerId string, listenerPort int, backendServerPort int) (response *slb.CreateLoadBalancerTCPListenerResponse, err error) {
 	request := slb.CreateCreateLoadBalancerTCPListenerRequest()
 	request.Scheme = "https"
@@ -51,7 +47,7 @@ func (c *AliSlbClient) CreateLoadBalancerTCPListener(balancerId string, listener
 	return
 }
 
-// 开始监听
+// StartLoadBalancerListener 开始监听
 func (c *AliSlbClient) StartLoadBalancerListener(balancerId string, listenerPort int) (response *slb.StartLoadBalancerListenerResponse, err error) {
 	request := slb.CreateStartLoadBalancerListenerRequest()
 	request.Scheme = "https"
@@ -63,7 +59,7 @@ func (c *AliSlbClient) StartLoadBalancerListener(balancerId string, listenerPort
 	return
 }
 
-// 创建slb
+// CreateLoadBalancer 创建slb
 func (c *AliSlbClient) CreateLoadBalancer(internetChargeType string, bandwidth int) (response *slb.CreateLoadBalancerResponse, err error) {
 	request := slb.CreateCreateLoadBalancerRequest()
 	request.Scheme = "https"
@@ -76,7 +72,7 @@ func (c *AliSlbClient) CreateLoadBalancer(internetChargeType string, bandwidth i
 	return
 }
 
-// 添加后端服务器
+// AddBackendServers 添加后端服务器
 func (c *AliSlbClient) AddBackendServers(balancerId string, serverId string) (response *slb.AddBackendServersResponse, err error) {
 	request := slb.CreateAddBackendServersRequest()
 	request.Scheme = "https"

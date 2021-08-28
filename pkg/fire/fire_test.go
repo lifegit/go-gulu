@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/26 下午6:09
- */
 package fire_test
 
 import (

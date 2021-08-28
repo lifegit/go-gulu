@@ -1,7 +1,6 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/27 下午5:08
- */
+// Package fire /**
+// 常见的curd工具集，快速助力业务开发。
+
 package fire
 
 import (
@@ -19,8 +18,6 @@ import (
 	"sync"
 )
 
-// 常见的curd工具集，快速助力业务开发。
-
 type validateOnce struct {
 	*validator.Validate
 	once sync.Once
@@ -28,6 +25,7 @@ type validateOnce struct {
 
 var validate validateOnce
 
+// CrudCreate
 // model support Array,Slice,Struct
 // every struct support tag `gormCreate` validator.Struct()
 func (d *Fire) CrudCreate(model interface{}, batchSize ...int) (err error) {
@@ -152,6 +150,7 @@ func (d *Fire) CrudSum(model interface{}, column string) (sum float32, err error
 
 type M map[string]interface{}
 
+// CrudUpdate
 // updates support (M or map[string]interface{}) and struct
 // support gorm.Db.Select() and gorm.Db.Omit()
 // TODO: struct only update non-zero fields
@@ -232,7 +231,7 @@ func (d *Fire) CrudUpdate(model interface{}, updates ...interface{}) (err error)
 	return tx.Error
 }
 
-// Make sure that all primary keys are not zero when updating
+// CrudUpdatePrimaryKey Make sure that all primary keys are not zero when updating
 func (d *Fire) CrudUpdatePrimaryKey(model interface{}, updates ...interface{}) (err error) {
 	sch, err := schema.Parse(model, &sync.Map{}, schema.NamingStrategy{})
 	if err != nil {

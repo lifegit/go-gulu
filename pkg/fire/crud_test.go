@@ -1,11 +1,6 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/23 下午10:30
- */
 package fire_test
 
 import (
-	"fmt"
 	"github.com/lifegit/go-gulu/v2/pkg/fire"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -48,12 +43,12 @@ func TestCrudOne(t *testing.T) {
 }
 
 func TestCrudAll(t *testing.T) {
-	_ = DBDryRun.WhereRange("age", 18, 20).CrudAll(User{}, &User{})
+	_ = DBDryRun.WhereRange("age", 18, 20).CrudAll(User{}, &[]User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` >= 18 AND `age` <= 20")
 }
 
 func TestCrudAllPage(t *testing.T) {
-	_, _ = DBDryRun.CrudAllPage(User{}, &User{}, fire.Page{
+	_, _ = DBDryRun.CrudAllPage(User{}, &[]User{}, fire.Page{
 		Current:  3,
 		PageSize: 5,
 	})
@@ -98,8 +93,6 @@ func TestCrudOnePreloadAll(t *testing.T) {
 		Company Company
 	}
 	_ = DB.CrudOnePreloadAll(TbUser{User: User{Age: 18}}, &TbUser{})
-	xx := DB
-	fmt.Println(xx)
 	assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `company` WHERE `company`.`id` = 1 AND `company`.`deleted_at` = 0")
 	assert.Equal(t, DB.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `user`.`age` = 18 LIMIT 1")
 }

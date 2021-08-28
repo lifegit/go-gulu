@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-2-25 9:00 下午
- */
 package aliyun
 
 import (
@@ -19,7 +15,7 @@ func NewSMS(regionId, accessKeyID, accessKeySecret string) (client *AliSmsClient
 	return &AliSmsClient{c}, err
 }
 
-// 发送短信
+// Send 发送短信
 func (c *AliSmsClient) Send(phoneNumber, signName, templateCode string, templateParam map[string]interface{}) (response *dysmsapi.SendSmsResponse, err error) {
 	request := dysmsapi.CreateSendSmsRequest()
 	request.Scheme = "https"
