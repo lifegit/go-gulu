@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/24 下午4:59
- */
 package fire_test
 
 import (
@@ -26,7 +22,7 @@ func TestAllow(t *testing.T) {
 		},
 	}
 
-	user := &[]User{}
+
 	_, _ = DBDryRun.OrderByColumn("age", fire.OrderAsc).
 		Allow(param, fire.Allow{
 			Where: []string{"age"},
@@ -35,7 +31,7 @@ func TestAllow(t *testing.T) {
 			In:    []string{"tag"},
 			Sorts: []string{"age"},
 		}).
-		CrudAllPage(User{}, user)
+		CrudAllPage(User{}, &[]User{})
 
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(2), "SELECT count(*) FROM `user` WHERE `age` = 18 AND (`id` >= 1 AND `id` <= 999) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Mr%'")
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` = 18 AND (`id` >= 1 AND `id` <= 999) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Mr%' ORDER BY `age` desc LIMIT 20")

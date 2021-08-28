@@ -6,6 +6,7 @@ package cacheStruct
 
 import (
 	"encoding/json"
+	"errors"
 	"github.com/go-redis/redis"
 	"github.com/imdario/mergo"
 	"reflect"
@@ -18,11 +19,15 @@ type CacheStruct struct {
 	expiration time.Duration
 }
 
-func New(key string, c *redis.Client) *CacheStruct {
+func New(key string, c *redis.Client, expiration ...time.Duration) *CacheStruct {
+	e := time.Second * 180
+	if expiration != nil{
+		e = expiration[0]
+	}
 	return &CacheStruct{
 		key:        key,
 		redis:      c,
-		expiration: time.Second * 180,
+		expiration: e,
 	}
 }
 
@@ -31,6 +36,14 @@ func (p *CacheStruct) IsEmpty() bool {
 	res, _ := p.redis.Exists(p.key).Result()
 
 	return res == 1
+}
+
+// 第一次
+func (p *CacheStruct) Init(m interface{}) (err error) {
+	if p.IsEmpty() {
+		return errors.New("empty")
+	}
+	return p.SetStruct(m)
 }
 
 // 设置数据

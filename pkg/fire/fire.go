@@ -1,7 +1,5 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/26 下午5:01
- */
+// Package fire /**/
+// 对 gorm.DB 的补充封装，实现更爽快得使用。属于基础层服务代码。
 package fire
 
 import (
@@ -12,8 +10,6 @@ import (
 	"strings"
 	"unicode"
 )
-
-// 对 gorm.DB 的补充封装，实现更爽快的使用。属于基础层服务代码。
 
 type Fire struct {
 	*gorm.DB
@@ -31,7 +27,6 @@ func NewInstance(db *gorm.DB) *Fire {
 	return &Fire{DB: db}
 }
 
-// 格式化列
 func FormatColumn(column string) (res string) {
 	list := strings.Split(column, ".")
 	for key, value := range list {
@@ -61,6 +56,8 @@ func (d *Fire) Close() (err error) {
 }
 
 // === SELECT ===
+
+// PreloadAll
 // TODO：Multiple SQL, gorm bonding data, so query conditions other than the main table are not supported
 func (d *Fire) PreloadAll() *Fire {
 	tx := d.DB.Preload(clause.Associations)
@@ -68,6 +65,7 @@ func (d *Fire) PreloadAll() *Fire {
 	return NewInstance(tx)
 }
 
+// PreloadJoin
 // TODO：Single SQL, mysql bonding data, so the conditions of all query tables are supported. use Join you need to pay attention to performance
 func (d *Fire) PreloadJoin(model interface{}) *Fire {
 	if reflect.TypeOf(model).Kind() != reflect.Struct {
@@ -90,7 +88,6 @@ func (d *Fire) PreloadJoin(model interface{}) *Fire {
 	return NewInstance(tx)
 }
 
-// allow
 func (d *Fire) Allow(param Param, allow Allow) *Fire {
 	tx := NewInstance(d.DB)
 	tx = allow.AllowParams(param.Params, tx)
@@ -133,6 +130,7 @@ const (
 
 // === where ===
 
+// WhereCompare
 // column CompareEqual ? # column = ?
 func (d *Fire) WhereCompare(column string, value interface{}, compare ...CompareType) *Fire {
 	c := If(compare != nil, compare, []CompareType{CompareEqual})
@@ -141,6 +139,7 @@ func (d *Fire) WhereCompare(column string, value interface{}, compare ...Compare
 	return NewInstance(tx)
 }
 
+// WhereIn
 // column IN(?)
 // column NOT IN(?)
 func (d *Fire) WhereIn(column string, value interface{}, isNot ...bool) *Fire {
@@ -150,6 +149,7 @@ func (d *Fire) WhereIn(column string, value interface{}, isNot ...bool) *Fire {
 	return NewInstance(tx)
 }
 
+// WhereLike
 // column LIKE %?%
 func (d *Fire) WhereLike(column string, value interface{}) *Fire {
 	tx := d.Where(fmt.Sprintf("%s LIKE ?", FormatColumn(column)), fmt.Sprintf("%%%s%%", value))
@@ -157,6 +157,7 @@ func (d *Fire) WhereLike(column string, value interface{}) *Fire {
 	return NewInstance(tx)
 }
 
+// WhereRange
 // column >= start ANd column <= end
 func (d *Fire) WhereRange(column string, start interface{}, end interface{}) *Fire {
 	formatColumn := FormatColumn(column)
@@ -166,6 +167,7 @@ func (d *Fire) WhereRange(column string, start interface{}, end interface{}) *Fi
 }
 
 // === order ===
+
 type OrderType string
 
 const (
@@ -183,6 +185,7 @@ func (d *Fire) OrderByColumn(column string, order OrderType, many ...bool) *Fire
 }
 
 // === update ===
+
 type ArithmeticType string
 
 const (
@@ -192,7 +195,8 @@ const (
 	ArithmeticExcept   ArithmeticType = "/"
 )
 
-//field = field ArithmeticType Number # field = field + 1
+// UpdateArithmetic
+// field = field ArithmeticType Number # field = field + 1
 func UpdateArithmetic(column string, value interface{}, art ArithmeticType) (m map[string]interface{}) {
 	m = make(map[string]interface{})
 	m[column] = gorm.Expr(fmt.Sprintf("%s %s ?", FormatColumn(column), art), value)

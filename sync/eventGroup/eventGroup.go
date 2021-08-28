@@ -34,7 +34,7 @@ type Event struct {
 	m map[uint64]event
 }
 
-//注册
+// Register 注册
 func (w *Event) Register(timeout time.Duration, count int, data interface{}, callbackFunc func(data interface{})) (id uint64) {
 	w.l.Lock()
 	defer w.l.Unlock()
@@ -62,7 +62,7 @@ func (w *Event) Register(timeout time.Duration, count int, data interface{}, cal
 	return id
 }
 
-//触发
+// trigger 触发
 func (w *Event) trigger(id uint64, tr bool) {
 	w.l.Lock()
 	ev := w.m[id]
@@ -79,12 +79,12 @@ func (w *Event) trigger(id uint64, tr bool) {
 	w.l.Unlock()
 }
 
-//触发
+// Trigger 触发
 func (w *Event) Trigger(id uint64) {
 	w.trigger(id, false)
 }
 
-//判断该id是否被注册
+// IsRegistered 判断该id是否被注册
 func (w *Event) IsRegistered(id uint64) bool {
 	w.l.RLock()
 	defer w.l.Unlock()

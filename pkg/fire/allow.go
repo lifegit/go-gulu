@@ -1,15 +1,12 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/26 下午11:21
- */
+// Package fire /**
+// 这是一个接收请求参数, 过滤到sql条件的漏斗工具。
+// 实现开箱即用, 快速匹配筛选条件。
+
 package fire
 
 import (
 	"reflect"
 )
-
-// 这是一个接收请求参数, 过滤到sql条件的漏斗工具。
-// 实现开箱即用, 快速匹配筛选条件。
 
 type Allow struct {
 	// where
@@ -24,7 +21,7 @@ type Allow struct {
 
 type Sort map[string]interface{}
 
-// allowSort
+// AllowSort allow sort
 func (a *Allow) AllowSort(sort Sort, db *Fire) *Fire {
 	toCamel2Case(sort)
 
@@ -41,7 +38,7 @@ func (a *Allow) AllowSort(sort Sort, db *Fire) *Fire {
 
 type Params map[string]interface{}
 
-// allowParams
+// AllowParams allow params
 func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
 	// used Allow.key loop: fixed SQL order, we can put the condition of low energy consumption in the front
 	// not used Params loop: range map is no order, it may result in different SQL generated each time

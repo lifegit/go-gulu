@@ -21,7 +21,7 @@ type MwJwt struct {
 	secret   string
 }
 
-func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, abortFunc func(error) (code int, jsonObj interface{})) MwJwt {
+func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, abortFunc func(*gin.Context, error) ()) MwJwt {
 	return MwJwt{
 		Middleware: func(c *gin.Context) {
 			// header or query
@@ -29,26 +29,35 @@ func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, 
 			if token == "" {
 				token = c.Query(tokenKey)
 			}
+
+			var err error
+			defer func() {
+				if err != nil{
+					abortFunc(c, err)
+					c.Abort()
+				}else {
+					c.Next()
+				}
+			}()
+
 			if len(token) < bearerLength {
-				c.AbortWithStatusJSON(abortFunc(errors.New(fmt.Sprintf("%s has not Bearer token", tokenKey))))
+				err = errors.New(fmt.Sprintf("%s has not Bearer token", tokenKey))
 				return
 			}
 			token = strings.TrimSpace(token)
 			token = strings.TrimPrefix(token, tokenPrefix)
 			value, err := jwt.Parse(token, appName, secret) // value is map[string]interface{}
 			if err != nil {
-				c.AbortWithStatusJSON(abortFunc(err))
 				return
 			}
 
 			data := reflect.New(p).Elem().Interface()
-			if err := mapstructure.Decode(value, &data); err != nil {
-				c.AbortWithStatusJSON(abortFunc(err))
+			err = mapstructure.Decode(value, &data)
+			if err != nil {
 				return
 			}
-
 			c.Set(ginKey, data)
-			c.Next()
+
 		},
 		tokenKey: tokenKey,
 		appName:  appName,
