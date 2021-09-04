@@ -29,16 +29,16 @@ func TestFormatColumn(t *testing.T) {
 }
 
 func TestWhereCompare(t *testing.T) {
-	DBDryRun.WhereCompare("age", 18, fire.CompareAboutEqual).Model(User{}).Take(&User{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareGreaterEqual).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` >= 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, fire.CompareAbout).Model(User{}).Take(&User{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareGreater).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` > 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, fire.CompareLessEqual).Model(User{}).Take(&User{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareSmallerEqual).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` <= 18 LIMIT 1")
 
-	DBDryRun.WhereCompare("age", 18, fire.CompareLess).Model(User{}).Take(&User{})
+	DBDryRun.WhereCompare("age", 18, fire.CompareSmaller).Model(User{}).Take(&User{})
 	assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` < 18 LIMIT 1")
 }
 
