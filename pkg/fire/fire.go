@@ -95,7 +95,7 @@ func (d *Fire) Allow(param Param, allow Allow) *Fire {
 
 	return tx
 }
-func toCamel2Case(m map[string]interface{})  {
+func toCamel2Case(m map[string]interface{}) {
 	for key, value := range m {
 		if !strings.Contains(key, "_") {
 			delete(m, key)
@@ -121,11 +121,11 @@ func Camel2Case(name string) string {
 type CompareType string
 
 const (
-	CompareEqual      CompareType = "="
-	CompareAboutEqual CompareType = ">="
-	CompareAbout      CompareType = ">"
-	CompareLessEqual  CompareType = "<="
-	CompareLess       CompareType = "<"
+	CompareEqual        CompareType = "="
+	CompareGreaterEqual CompareType = ">="
+	CompareGreater      CompareType = ">"
+	CompareSmallerEqual CompareType = "<="
+	CompareSmaller      CompareType = "<"
 )
 
 // === where ===
