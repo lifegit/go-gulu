@@ -4,25 +4,23 @@
  */
 package mobileCode
 
-import (
-	"fmt"
-	"github.com/go-redis/redis"
-	"time"
-)
+type mobileCodeInterface interface {
+	Set(key, value string) error
+	Get(key string) (string, error)
+	Del(key string) error
+}
 
 type MobileCode struct {
-	tag    string
-	expire time.Duration
-	redis  *redis.Client
+	tagPrefix string
+	storage   mobileCodeInterface
 }
 
-func New(tag string, redis *redis.Client, expire time.Duration) *MobileCode {
+func New(storage mobileCodeInterface) *MobileCode {
 	return &MobileCode{
-		tag:    fmt.Sprintf("%s:", tag),
-		expire: expire,
-		redis:  redis,
+		storage: storage,
 	}
 }
+
 // 发送
 func (m *MobileCode) Send(sendFunc func() (MobileMes, error)) error {
 	// 发送验证码
@@ -32,19 +30,22 @@ func (m *MobileCode) Send(sendFunc func() (MobileMes, error)) error {
 	}
 
 	// 放到缓存
-	return m.redis.Set(tag(m.tag, sendMes.Mobile), sendMes.Code, m.expire).Err()
+	return m.storage.Set(sendMes.Mobile, sendMes.Code)
 }
+
 // 是否正确
 func (m *MobileCode) IsCheck(ms MobileMes) bool {
-	str, _ := m.redis.Get(tag(m.tag, ms.Mobile)).Result()
+	str, _ := m.storage.Get(ms.Mobile)
 	return str == ms.Code
 }
+
 // 是否存在
 func (m *MobileCode) IsExist(mobile string) bool {
-	str, _ := m.redis.Get(tag(m.tag, mobile)).Result()
+	str, _ := m.storage.Get(mobile)
 	return str != ""
 }
+
 // 删除
-func (m *MobileCode) Del(mobile string) {
-	m.redis.Del(tag(m.tag, mobile))
+func (m *MobileCode) Del(mobile string) error {
+	return m.storage.Del(mobile)
 }

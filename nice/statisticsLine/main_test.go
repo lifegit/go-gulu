@@ -9,6 +9,7 @@ import (
 	"github.com/lifegit/go-gulu/v2/nice/statisticsLine/app"
 	"testing"
 )
+
 //go:generate ./main -p ./ -e /node_modules,/.umi -s .go
 func TestStatisticsLine(t *testing.T) {
 	line := app.StatisticsLine{

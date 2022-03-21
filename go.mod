@@ -40,12 +40,12 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/wenzhenxi/gorsa v0.0.0-20210524035706-528c7050d703
-	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gorm.io/driver/mysql v1.1.1
-	gorm.io/driver/postgres v1.1.0
+	gorm.io/driver/postgres v1.3.1
 	gorm.io/driver/sqlite v1.1.4
 	gorm.io/driver/sqlserver v1.0.7
-	gorm.io/gorm v1.21.11
-	gorm.io/plugin/soft_delete v1.0.1
+	gorm.io/gorm v1.23.2
+	gorm.io/plugin/soft_delete v1.1.0
 )

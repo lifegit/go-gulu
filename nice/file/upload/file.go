@@ -5,11 +5,14 @@
 package upload
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/lifegit/go-gulu/v2/nice/crypto"
 	"github.com/lifegit/go-gulu/v2/nice/file"
 	"github.com/lifegit/go-gulu/v2/nice/rand"
+	"mime/multipart"
+	"net/url"
 	"os"
 	"path"
 	"strconv"
@@ -23,14 +26,15 @@ var (
 )
 
 type FileUpload interface {
-	Upload(c *gin.Context, attribute FileAttribute) File
+	Upload(c *gin.Context, attribute FileAttribute) (File, error)
 	Remove(path string) error
+	URL(domain, filePath string) (*url.URL, error)
 }
 
 type File struct {
-	Error error
-	Url   string
-	Save  string
+	Name string
+	Size int64
+	Save string
 }
 
 type FileAttribute struct {
@@ -38,6 +42,19 @@ type FileAttribute struct {
 	Exts    []string
 	DirPath string
 	MaxByte int64
+}
+
+func (a FileAttribute) CheckFile(fileHeader *multipart.FileHeader) (err error) {
+	if strings.Join(a.Exts, "") != strings.Join(AllowAnyExts, "") {
+		if !CheckFileExt(fileHeader.Filename, &a.Exts) {
+			return errors.New("不支持此文件类型")
+		}
+	}
+	if fileHeader.Size > a.MaxByte {
+		return errors.New(fmt.Sprintf("文件大小最大允许%dM", a.MaxByte/1024/1024))
+	}
+
+	return
 }
 
 // 使用md5随机生成一个文件名

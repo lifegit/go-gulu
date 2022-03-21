@@ -14,7 +14,6 @@ type MobileMes struct {
 	Code   string
 }
 
-
 func tag(tag, mobile string) string {
 	return tag + mobile
 }

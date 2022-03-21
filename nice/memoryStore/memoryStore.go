@@ -18,7 +18,7 @@ type idByTimeValue struct {
 }
 
 // memoryStore is an internal store for captcha ids and their values.
-type memoryStore struct {
+type MemoryStore struct {
 	sync.RWMutex
 	digitsById map[string]interface{}
 	idByTime   *list.List
@@ -30,22 +30,23 @@ type memoryStore struct {
 	expiration time.Duration
 }
 
-func New(maxCount, expireIn int) (Mem *memoryStore) {
-	Mem = new(memoryStore)
+func New(maxCount int, expiration time.Duration) (Mem *MemoryStore) {
+	Mem = new(MemoryStore)
 	Mem.digitsById = make(map[string]interface{})
 	Mem.idByTime = list.New()
 	if maxCount <= 1024 {
 		maxCount = 1024
 	}
 	Mem.collectNum = maxCount
-	if expireIn <= 0 {
-		expireIn = 30
+
+	if int(expiration) <= 0 {
+		expiration = time.Minute * 30
 	}
-	Mem.expiration = time.Minute * time.Duration(expireIn)
+	Mem.expiration = expiration
 	return Mem
 }
 
-func (s *memoryStore) Set(id string, value interface{}) {
+func (s *MemoryStore) Set(id string, value interface{}) {
 	s.Lock()
 	s.digitsById[id] = value
 	s.idByTime.PushBack(idByTimeValue{time.Now(), id})
@@ -56,7 +57,7 @@ func (s *memoryStore) Set(id string, value interface{}) {
 	}
 }
 
-func (s *memoryStore) Get(id string, clear bool) (value interface{}, err error) {
+func (s *MemoryStore) Get(id string, clear bool) (value interface{}, err error) {
 	if !clear {
 		// When we don't need to clear captcha, acquire read lock.
 		s.RLock()
@@ -75,7 +76,24 @@ func (s *memoryStore) Get(id string, clear bool) (value interface{}, err error) 
 	return
 }
 
-func (s *memoryStore) collect() {
+func (s *MemoryStore) Del(id string) bool {
+	s.Lock()
+	defer s.Unlock()
+
+	s.numStored--
+	delete(s.digitsById, id)
+	for e := s.idByTime.Front(); e != nil; {
+		ev, ok := e.Value.(idByTimeValue)
+		if ok && ev.id == id {
+			s.idByTime.Remove(e)
+			return true
+		}
+	}
+
+	return false
+}
+
+func (s *MemoryStore) collect() {
 	logrus.Warn("memory store collect function has been called some value will be lost")
 	now := time.Now()
 	s.Lock()
@@ -97,7 +115,7 @@ func (s *memoryStore) collect() {
 	}
 }
 
-func (s *memoryStore) GetUint(id string) (value uint, err error) {
+func (s *MemoryStore) GetUint(id string) (value uint, err error) {
 	vv, err := s.Get(id, false)
 	if err != nil {
 		return 0, err
@@ -107,4 +125,16 @@ func (s *memoryStore) GetUint(id string) (value uint, err error) {
 		return value, nil
 	}
 	return 0, errors.New("mem:has value of this id, but is not type of uint")
+}
+
+func (s *MemoryStore) GetString(id string) (value string, err error) {
+	vv, err := s.Get(id, false)
+	if err != nil {
+		return "", err
+	}
+	value, ok := vv.(string)
+	if ok {
+		return value, nil
+	}
+	return "", errors.New("mem:has value of this id, but is not type of string")
 }

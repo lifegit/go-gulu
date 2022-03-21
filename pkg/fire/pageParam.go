@@ -3,23 +3,15 @@
 
 package fire
 
-// Param 筛选、排序参数
-type Param struct {
-	Params Params `form:"params" json:"params"`
-	Sort   Sort   `form:"sort" json:"sort" binding:"omitempty,max=1,dive,keys,required,endkeys,eq=ascend|eq=descend"`
-}
-
-// PageParam 分页参数
-type PageParam struct {
-	Page
-	Param
-}
-
 // PageResult 分页结果
 type PageResult struct {
 	Page
 	Total int64       `json:"total"`
 	Data  interface{} `json:"data"`
+}
+
+func (p *PageResult) SetData(d interface{}) {
+	p.Data = d
 }
 
 func (p *PageResult) Init(page ...Page) {
@@ -35,7 +27,6 @@ func (p *PageResult) Init(page ...Page) {
 	}
 }
 
-
 type Page struct {
 	Current  int `json:"current" form:"current"`
 	PageSize int `json:"pageSize" form:"pageSize"`
@@ -46,6 +37,7 @@ func (p *Page) GetOffset() int {
 }
 
 const DefaultPageSize = 20
+
 func (p *Page) DefaultSize(pageSize int) Page {
 	if p.PageSize <= 0 {
 		p.PageSize = pageSize
@@ -58,4 +50,9 @@ func (p *Page) SetSize(pageSize int) *Page {
 	p.PageSize = pageSize
 
 	return p
+}
+
+// SinglePageResult 单页结果
+type SinglePageResult struct {
+	Data interface{} `json:"data"`
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"net/url"
 	"reflect"
 	"strings"
 	"unicode"
@@ -13,6 +14,19 @@ import (
 
 type Fire struct {
 	*gorm.DB
+}
+
+func NewInstance(db *gorm.DB) *Fire {
+	return &Fire{DB: db}
+}
+
+func (d *Fire) Close() (err error) {
+	dbs, err := d.DB.DB()
+	if err != nil {
+		return
+	}
+
+	return dbs.Close()
 }
 
 func If(isA bool, a, b interface{}) interface{} {
@@ -23,17 +37,34 @@ func If(isA bool, a, b interface{}) interface{} {
 	return b
 }
 
-func NewInstance(db *gorm.DB) *Fire {
-	return &Fire{DB: db}
+const ColumnAll = "*"
+
+type FormatColumnType string
+
+const (
+	FormatColumnBackQuote      FormatColumnType = "`"
+	FormatColumnQuotationMarks FormatColumnType = `"`
+)
+
+var formatColumn = string(FormatColumnBackQuote)
+
+func SetFormatColumnType(v FormatColumnType) {
+	formatColumn = string(v)
 }
 
-func FormatColumn(column string) (res string) {
-	list := strings.Split(column, ".")
+func FormatColumn(column ...string) (res string) {
+	var list []string
+	for _, item := range column {
+		list = append(list, strings.Split(item, ".")...)
+	}
+
 	for key, value := range list {
 		if len(value) >= 1 {
 			// first and last is not `
-			if value[:1] != "`" && value[len(value)-1:] != "`" {
-				value = fmt.Sprintf("`%s`", value)
+			if value == ColumnAll {
+				value = ColumnAll
+			} else if value[:1] != formatColumn && value[len(value)-1:] != formatColumn {
+				value = fmt.Sprintf("%s%s%s", formatColumn, value, formatColumn)
 			}
 			res += value
 			// isLast
@@ -46,16 +77,25 @@ func FormatColumn(column string) (res string) {
 	return
 }
 
-func (d *Fire) Close() (err error) {
-	dbs, err := d.DB.DB()
-	if err != nil {
-		return
-	}
+type Column struct {
+	Table  string
+	Column string
+}
 
-	return dbs.Close()
+func (c *Column) String() string {
+	return FormatColumn(c.Table, c.Column)
 }
 
 // === SELECT ===
+
+// WhereIn
+// column IN(?)
+// column NOT IN(?)
+func (d *Fire) ModelWhere(model interface{}) *Fire {
+	tx := d.Model(model).Where(model)
+
+	return NewInstance(tx)
+}
 
 // PreloadAll
 // TODO：Multiple SQL, gorm bonding data, so query conditions other than the main table are not supported
@@ -88,14 +128,14 @@ func (d *Fire) PreloadJoin(model interface{}) *Fire {
 	return NewInstance(tx)
 }
 
-func (d *Fire) Allow(param Param, allow Allow) *Fire {
+func (d *Fire) Allow(params url.Values, allow Allow) *Fire {
 	tx := NewInstance(d.DB)
-	tx = allow.AllowParams(param.Params, tx)
-	tx = allow.AllowSort(param.Sort, tx)
+	tx = allow.AllowParams(params, tx)
+	tx = allow.AllowSort(params, tx)
 
 	return tx
 }
-func toCamel2Case(m map[string]interface{}) {
+func toCamel2Case(m url.Values) {
 	for key, value := range m {
 		if !strings.Contains(key, "_") {
 			delete(m, key)

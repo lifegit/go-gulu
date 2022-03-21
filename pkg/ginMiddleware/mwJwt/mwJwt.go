@@ -16,12 +16,12 @@ const bearerLength = len(tokenPrefix)
 type MwJwt struct {
 	Middleware gin.HandlerFunc
 
-	tokenKey string
-	appName  string
-	secret   string
+	TokenKey string
+	AppName  string
+	Secret   string
 }
 
-func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, abortFunc func(*gin.Context, error) ()) MwJwt {
+func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, abortFunc func(*gin.Context, error)) MwJwt {
 	return MwJwt{
 		Middleware: func(c *gin.Context) {
 			// header or query
@@ -32,10 +32,10 @@ func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, 
 
 			var err error
 			defer func() {
-				if err != nil{
+				if err != nil {
 					abortFunc(c, err)
 					c.Abort()
-				}else {
+				} else {
 					c.Next()
 				}
 			}()
@@ -57,16 +57,15 @@ func NewJwtMiddleware(tokenKey, secret, appName, ginKey string, p reflect.Type, 
 				return
 			}
 			c.Set(ginKey, data)
-
 		},
-		tokenKey: tokenKey,
-		appName:  appName,
-		secret:   secret,
+		TokenKey: tokenKey,
+		AppName:  appName,
+		Secret:   secret,
 	}
 }
 
 func (j *MwJwt) GenerateToken(data interface{}, expireHour int) (res *jwt.JwtObj, e error) {
-	if res, e = jwt.GenerateToken(data, j.appName, j.secret, j.tokenKey, expireHour); e == nil {
+	if res, e = jwt.GenerateToken(data, j.AppName, j.Secret, j.TokenKey, expireHour); e == nil {
 		res.Token = tokenPrefix + res.Token
 	}
 	return

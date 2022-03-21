@@ -1,7 +1,6 @@
 package fire_test
 
 import (
-	"context"
 	"fmt"
 	"github.com/lifegit/go-gulu/v2/pkg/fire"
 	"gorm.io/driver/mysql"
@@ -29,8 +28,8 @@ func init() {
 		log.Printf("failed to connect database, got error %v", err)
 		os.Exit(1)
 	} else {
-		DB = fire.NewInstance(db.Session(&gorm.Session{Logger: &(Diary{})}))
-		DBDryRun = fire.NewInstance(DB.Session(&gorm.Session{DryRun: true, NewDB: true, Logger: &(Diary{})}))
+		DB = fire.NewInstance(db.Session(&gorm.Session{Logger: &(fire.Diary{})}))
+		DBDryRun = fire.NewInstance(DB.Session(&gorm.Session{DryRun: true, NewDB: true, Logger: &(fire.Diary{})}))
 		sqlDB, err := db.DB()
 		if err == nil {
 			err = sqlDB.Ping()
@@ -96,36 +95,6 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 	}
 
 	return
-}
-
-type Diary struct {
-	Sql []string
-}
-
-func (n *Diary) LogMode(logger.LogLevel) logger.Interface {
-	return &(*n)
-}
-func (n *Diary) Info(c context.Context, sql string, a ...interface{}) {
-	fmt.Println("Info: ", sql)
-}
-func (n *Diary) Warn(c context.Context, sql string, a ...interface{}) {
-	fmt.Println("Warn: ", sql)
-}
-func (n *Diary) Error(c context.Context, sql string, a ...interface{}) {
-	fmt.Println("Error: ", sql)
-}
-func (n *Diary) Trace(ctx context.Context, begin time.Time, fc func() (string, int64), err error) {
-	sql, _ := fc()
-	n.Sql = append(n.Sql, sql)
-	fmt.Println("Trace: ", sql)
-}
-func (n *Diary) LastSql(position ...int) string {
-	p := fire.If(position == nil, []int{1}, position).([]int)[0]
-	if len(n.Sql) >= p {
-		return n.Sql[len(n.Sql)-p]
-	}
-
-	return ""
 }
 
 func RunMigrations() {
@@ -214,7 +183,7 @@ func RunMigrations() {
 		"INSERT INTO `user` (`company_id`,`name`,`tag`,`age`,`height`) VALUES (1,'Wang','student',18,185),(2,'Zhang','student',20,180),(1,'Li','teacher',30,155),(2,'Liu','boss',35,175) ON DUPLICATE KEY UPDATE `company_id`=VALUES(`company_id`),`name`=VALUES(`name`),`tag`=VALUES(`tag`),`age`=VALUES(`age`),`height`=VALUES(`height`)",
 	}
 	for key, item := range res {
-		if sql := DB.Logger.(*Diary).LastSql(len(res) - key); sql != item {
+		if sql := DB.Logger.(*fire.Diary).LastSql(len(res) - key); sql != item {
 			log.Printf("Failed to create data for `%s` != `%s`\n", sql, item)
 			os.Exit(1)
 		}
@@ -233,7 +202,7 @@ type User struct {
 
 // company
 type Company struct {
-	fire.TimeFieldsModel
+	fire.TimeFields3Model
 	ID      uint `gorm:"primarykey"`
 	Address string
 	Name    string

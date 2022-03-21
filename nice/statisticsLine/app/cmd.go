@@ -11,7 +11,6 @@ import (
 
 var line StatisticsLine
 
-
 var RestCmd = &cobra.Command{
 	Use:     "statisticsLine",
 	Short:   "statisticsLine a count the number of code lines",
@@ -27,4 +26,3 @@ func init() {
 	RestCmd.Flags().StringSliceVarP(&line.ExcludeDirs, "excludeDirs", "e", []string{}, "exclude directory")
 	RestCmd.Flags().StringVarP(&line.SuffixName, "suffixName", "s", ".go", "extended name")
 }
-

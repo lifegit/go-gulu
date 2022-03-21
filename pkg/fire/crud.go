@@ -65,7 +65,7 @@ func (d *Fire) CrudCreate(model interface{}, batchSize ...int) (err error) {
 
 func (d *Fire) IsExists(model interface{}) bool {
 	v := reflect.New(reflect.ValueOf(model).Type()).Elem()
-	tx := d.Model(model).Where(model).Select("1").Take(&v)
+	tx := d.Model(model).Where(model).Take(&v)
 
 	return tx.RowsAffected >= 1
 }
@@ -84,6 +84,7 @@ func (d *Fire) CrudAll(model interface{}, callListData interface{}) (err error) 
 
 func (d *Fire) CrudAllPage(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
 	pageResult.Init(page...)
+	defer pageResult.SetData(callListData)
 
 	d.Model(model).Where(model).Count(&pageResult.Total)
 	if pageResult.Total > 0 || d.DryRun {
@@ -91,24 +92,23 @@ func (d *Fire) CrudAllPage(model interface{}, callListData interface{}, page ...
 		d.Offset(pageResult.GetOffset()).Limit(pageResult.PageSize).Find(callListData)
 	}
 
-	pageResult.Data = callListData
-
 	return
 }
 
 func (d *Fire) CrudOnePreloadJoin(model interface{}, callData interface{}) (err error) {
-	return d.PreloadJoin(model).Take(callData).Error
+	return d.PreloadJoin(model).Where(model).Take(callData).Error
 }
 
 func (d *Fire) CrudAllPreloadJoin(model interface{}, callListData interface{}) (err error) {
-	return d.PreloadJoin(model).Find(callListData).Error
+	return d.PreloadJoin(model).Where(model).Find(callListData).Error
 }
 
 func (d *Fire) CrudAllPagePreloadJoin(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
 	pageResult.Init(page...)
+	defer pageResult.SetData(callListData)
 
-	tx := d.PreloadJoin(model).Session(&gorm.Session{})
-	tx.Model(model).Count(&pageResult.Total)
+	tx := d.PreloadJoin(model).Model(model).Where(model)
+	tx.Session(&gorm.Session{}).Count(&pageResult.Total)
 	if pageResult.Total > 0 || d.DryRun {
 		tx.Offset(pageResult.GetOffset()).Limit(pageResult.PageSize).Find(callListData)
 	}
@@ -126,6 +126,7 @@ func (d *Fire) CrudAllPreloadAll(model interface{}, callListData interface{}) (e
 
 func (d *Fire) CrudAllPagePreloadAll(model interface{}, callListData interface{}, page ...Page) (pageResult PageResult, err error) {
 	pageResult.Init(page...)
+	defer pageResult.SetData(callListData)
 
 	tx := d.PreloadAll().Model(model).Where(model)
 	tx.Count(&pageResult.Total)
@@ -143,7 +144,7 @@ func (d *Fire) CrudCount(model interface{}) (count int64, err error) {
 }
 
 func (d *Fire) CrudSum(model interface{}, column string) (sum float32, err error) {
-	err = d.Model(model).Where(model).Select(fmt.Sprintf("IFNULL(SUM(`%s`),0)", column)).Find(&sum).Error
+	err = d.Model(model).Where(model).Select(d.SumLabel(column)).Find(&sum).Error
 
 	return
 }
@@ -163,7 +164,7 @@ func (d *Fire) CrudUpdate(model interface{}, updates ...interface{}) (err error)
 		case reflect.Struct:
 			if s, err := schema.Parse(item, &sync.Map{}, schema.NamingStrategy{}); err == nil {
 				for _, field := range s.Fields {
-					v, _ := field.ValueOf(reflect.ValueOf(item))
+					v, _ := field.ValueOf(d.Statement.Context, reflect.ValueOf(item))
 					m[field.DBName] = v
 				}
 			}
@@ -231,16 +232,16 @@ func (d *Fire) CrudUpdate(model interface{}, updates ...interface{}) (err error)
 	return tx.Error
 }
 
-// CrudUpdatePrimaryKey Make sure that all primary keys are not zero when updating
-func (d *Fire) CrudUpdatePrimaryKey(model interface{}, updates ...interface{}) (err error) {
+// CrudUpdateByPrimaryKey Make sure that all primary keys are not zero when updating
+func (d *Fire) CrudUpdateByPrimaryKey(model interface{}, updates ...interface{}) (err error) {
 	sch, err := schema.Parse(model, &sync.Map{}, schema.NamingStrategy{})
 	if err != nil {
 		return
 	}
 
 	for _, field := range sch.PrimaryFields {
-		if _, isZero := field.ValueOf(reflect.ValueOf(model)); isZero {
-			return errors.New(fmt.Sprintf("primary key %s is zero", field.Name))
+		if _, isZero := field.ValueOf(d.Statement.Context, reflect.ValueOf(model)); isZero {
+			return errors.New(fmt.Sprintf("primary key %s is not exist", field.Name))
 		}
 	}
 

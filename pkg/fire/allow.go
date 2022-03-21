@@ -5,7 +5,10 @@
 package fire
 
 import (
-	"reflect"
+	"encoding/json"
+	"github.com/go-playground/validator/v10"
+	"net/url"
+	"strings"
 )
 
 type Allow struct {
@@ -19,16 +22,23 @@ type Allow struct {
 	Sorts []string
 }
 
-type Sort map[string]interface{}
-
 // AllowSort allow sort
-func (a *Allow) AllowSort(sort Sort, db *Fire) *Fire {
-	toCamel2Case(sort)
-
+func (a *Allow) AllowSort(sort url.Values, db *Fire) *Fire {
+	v := sort["sort"]
+	if v == nil || len(v) <= 0 {
+		return db
+	}
+	m := make(map[string]string)
+	if err := json.Unmarshal([]byte(v[0]), &m); err != nil || len(m) <= 0 {
+		return db
+	}
+	if err := validator.New().Var(m, "omitempty,max=1,dive,keys,required,endkeys,eq=ascend|eq=descend"); err != nil {
+		return db
+	}
 	for _, condItem := range a.Sorts {
-		for column, value := range sort {
-			if column == condItem {
-				db = db.OrderByColumn(column, If(value == "ascend", OrderAsc, OrderDesc).(OrderType))
+		for column, value := range m {
+			if caColumn := Camel2Case(column); caColumn == condItem {
+				db = db.OrderByColumn(caColumn, If(strings.HasPrefix(value, string(OrderAsc)), OrderAsc, OrderDesc).(OrderType))
 			}
 		}
 	}
@@ -36,10 +46,8 @@ func (a *Allow) AllowSort(sort Sort, db *Fire) *Fire {
 	return db
 }
 
-type Params map[string]interface{}
-
 // AllowParams allow params
-func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
+func (a *Allow) AllowParams(params url.Values, db *Fire) *Fire {
 	// used Allow.key loop: fixed SQL order, we can put the condition of low energy consumption in the front
 	// not used Params loop: range map is no order, it may result in different SQL generated each time
 
@@ -49,13 +57,8 @@ func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
 	for _, condItem := range a.Where {
 		for column, value := range params {
 			if column == condItem {
-				switch data := value.(type) {
-				case []interface{}:
-					if len(data) >= 1 {
-						db = db.WhereCompare(column, data[0])
-					}
-				case string, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
-					db = db.WhereCompare(column, value)
+				if len(value) >= 1 {
+					db = db.WhereCompare(column, value[0])
 				}
 			}
 		}
@@ -65,12 +68,8 @@ func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
 	for _, condItem := range a.Range {
 		for column, value := range params {
 			if column == condItem {
-				switch data := value.(type) {
-				case []interface{}, []int, []int8, []int16, []int32, []int64, []uint, []uint8, []uint16, []uint32, []uint64, []float32, []float64:
-					dValue := reflect.ValueOf(data)
-					if dValue.Len() >= 2 {
-						db = db.WhereRange(column, dValue.Index(0).Interface(), dValue.Index(1).Interface())
-					}
+				if len(value) >= 2 {
+					db = db.WhereRange(column, value[0], value[1])
 				}
 			}
 		}
@@ -80,21 +79,19 @@ func (a *Allow) AllowParams(params Params, db *Fire) *Fire {
 	for _, condItem := range a.In {
 		for column, value := range params {
 			if column == condItem {
-				data := reflect.ValueOf(value)
-				if data.Kind() == reflect.Slice {
-					db = db.WhereIn(column, value)
-				}
+				db = db.WhereIn(column, value)
 			}
 		}
 	}
 
+	// condItem: mkt_roads.name
+	// column:road		value: {"name":"11"}
 	// Like
 	for _, condItem := range a.Like {
 		for column, value := range params {
 			if column == condItem {
-				switch value.(type) {
-				case string, int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64, complex64, complex128:
-					db = db.WhereLike(column, value)
+				if len(value) >= 1 {
+					db = db.WhereLike(column, value[0])
 				}
 			}
 		}
