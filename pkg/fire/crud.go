@@ -108,8 +108,13 @@ func (d *Fire) CrudAllPagePreloadJoin(model interface{}, callListData interface{
 	defer pageResult.SetData(callListData)
 
 	tx := d.PreloadJoin(model).Model(model).Where(model)
-	tx.Session(&gorm.Session{}).Count(&pageResult.Total)
+	preloads := tx.Statement.Preloads
+	tx.Statement.Preloads = map[string][]interface{}{}
+	tx.Session(&gorm.Session{}).Count(&(pageResult.Total))
 	if pageResult.Total > 0 || d.DryRun {
+		if len(preloads) > 0 {
+			tx.Statement.Preloads = preloads
+		}
 		tx.Offset(pageResult.GetOffset()).Limit(pageResult.PageSize).Find(callListData)
 	}
 
