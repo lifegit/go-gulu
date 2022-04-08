@@ -8,8 +8,6 @@ import (
 	"gorm.io/gorm/clause"
 	"net/url"
 	"reflect"
-	"strings"
-	"unicode"
 )
 
 type Fire struct {
@@ -27,63 +25,6 @@ func (d *Fire) Close() (err error) {
 	}
 
 	return dbs.Close()
-}
-
-func If(isA bool, a, b interface{}) interface{} {
-	if isA {
-		return a
-	}
-
-	return b
-}
-
-const ColumnAll = "*"
-
-type FormatColumnType string
-
-const (
-	FormatColumnBackQuote      FormatColumnType = "`"
-	FormatColumnQuotationMarks FormatColumnType = `"`
-)
-
-var formatColumn = string(FormatColumnBackQuote)
-
-func SetFormatColumnType(v FormatColumnType) {
-	formatColumn = string(v)
-}
-
-func FormatColumn(column ...string) (res string) {
-	var list []string
-	for _, item := range column {
-		list = append(list, strings.Split(item, ".")...)
-	}
-
-	for key, value := range list {
-		if len(value) >= 1 {
-			// first and last is not `
-			if value == ColumnAll {
-				value = ColumnAll
-			} else if value[:1] != formatColumn && value[len(value)-1:] != formatColumn {
-				value = fmt.Sprintf("%s%s%s", formatColumn, value, formatColumn)
-			}
-			res += value
-			// isLast
-			if key != len(list)-1 {
-				res += "."
-			}
-		}
-	}
-
-	return
-}
-
-type Column struct {
-	Table  string
-	Column string
-}
-
-func (c *Column) String() string {
-	return FormatColumn(c.Table, c.Column)
 }
 
 // === SELECT ===
@@ -135,28 +76,6 @@ func (d *Fire) Allow(params url.Values, allow Allow) *Fire {
 
 	return tx
 }
-func toCamel2Case(m url.Values) {
-	for key, value := range m {
-		if !strings.Contains(key, "_") {
-			delete(m, key)
-			m[Camel2Case(key)] = value
-		}
-	}
-}
-func Camel2Case(name string) string {
-	buffer := strings.Builder{}
-	for i, r := range name {
-		if unicode.IsUpper(r) {
-			if i != 0 {
-				buffer.WriteString("_")
-			}
-			buffer.WriteRune(unicode.ToLower(r))
-		} else {
-			buffer.WriteRune(r)
-		}
-	}
-	return buffer.String()
-}
 
 type CompareType string
 
@@ -173,10 +92,14 @@ const (
 // WhereCompare
 // column CompareEqual ? # column = ?
 func (d *Fire) WhereCompare(column string, value interface{}, compare ...CompareType) *Fire {
-	c := If(compare != nil, compare, []CompareType{CompareEqual})
-	tx := d.DB.Where(fmt.Sprintf("%s %s ?", FormatColumn(column), c.([]CompareType)[0]), value)
+	return NewInstance(d.Scopes(WhereCompare(column, value, compare...)))
+}
 
-	return NewInstance(tx)
+func WhereCompare(column string, value interface{}, compare ...CompareType) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		c := If(compare != nil, compare, []CompareType{CompareEqual}).([]CompareType)[0]
+		return db.Where(fmt.Sprintf("%s %s ?", FormatColumn(column), c), value)
+	}
 }
 
 // WhereIn
