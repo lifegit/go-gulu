@@ -3,35 +3,35 @@ package fire_test
 import (
 	"github.com/lifegit/go-gulu/v2/pkg/fire"
 	"github.com/stretchr/testify/assert"
+	"net/url"
 	"testing"
 )
 
 func TestAllow(t *testing.T) {
 	// url param
-	param := fire.Param{
-		Params: fire.Params{
-			"age":     18,
-			"name":    "Mr",
-			"exclude": "exclude", //  does not exist in the allow, so exclude
-			"id":      []int64{1, 999},
-			"tag":     []string{"学生", "儿子", "青年"},
-		},
-		Sort: fire.Sort{
-			"id":  "ascend",
-			"age": "descend",
-		},
-	}
+	param, _ := url.ParseQuery(
+		`age=18&` +
+			`name=Mr&` +
+			`exclude=exclude&` + //  does not exist in the allow, so exclude
+			`id=1&` +
+			`id=999&` +
+			`tag=student&` +
+			`tag=老年&` +
+			`tag=youth&` +
+			`sort={"age":"descend"}&`,
+	)
 
-	_, _ = DBDryRun.OrderByColumn("age", fire.OrderAsc).
+	_, _ = DBDryRun.
+		OrderByColumn("age", fire.OrderAsc).
 		Allow(param, fire.Allow{
-			Where: []string{"age"},
-			Like:  []string{"name"},
-			Range: []string{"id"},
-			In:    []string{"tag"},
-			Sorts: []string{"age"},
+			Where: fire.Filtered{"age"},
+			Like:  fire.Filtered{"name"},
+			Range: fire.Filtered{"id"},
+			In:    fire.Filtered{"tag"},
+			Sorts: fire.Filtered{"age"},
 		}).
-		CrudAllPage(User{}, &[]User{})
+		CrudAllPage(User{}, &[]User{}, nil)
 
-	assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(2), "SELECT count(*) FROM `user` WHERE `age` = 18 AND (`id` >= 1 AND `id` <= 999) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Mr%'")
-	assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(), "SELECT * FROM `user` WHERE `age` = 18 AND (`id` >= 1 AND `id` <= 999) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Mr%' ORDER BY `age` desc LIMIT 20")
+	assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(2), `SELECT count(*) FROM "user" WHERE "user"."age" = '18' AND "user"."id" >= '1' AND "user"."id" <= '999' AND "user"."tag" IN ('student','老年','youth') AND "user"."name" LIKE '%Mr%'`)
+	assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(), `SELECT * FROM "user" WHERE "user"."age" = '18' AND "user"."id" >= '1' AND "user"."id" <= '999' AND "user"."tag" IN ('student','老年','youth') AND "user"."name" LIKE '%Mr%' ORDER BY "user"."age" DESC LIMIT 5`)
 }

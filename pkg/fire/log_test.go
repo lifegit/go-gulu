@@ -7,6 +7,6 @@ import (
 )
 
 func TestLog(t *testing.T) {
-	DBDryRun.WhereCompare("age", 18, fire.CompareGreaterEqual).Model(User{}).Take(&User{})
-	assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(), "SELECT * FROM `user` WHERE `age` >= 18 LIMIT 1")
+	DBDryRun.Clause(fire.WhereCompare("age", 18, fire.CompareGte)).Model(User{}).Take(&User{})
+	assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(), `SELECT * FROM "user" WHERE "user"."age" >= 18 LIMIT 1`)
 }

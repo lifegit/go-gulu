@@ -3,7 +3,15 @@
 
 package fire
 
+import (
+	"net/url"
+	"strconv"
+)
+
+var DefaultPageSize = 5
+
 // PageResult 分页结果
+// https://gorm.io/docs/scopes.html#Pagination
 type PageResult struct {
 	Page
 	Total int64       `json:"total"`
@@ -14,16 +22,34 @@ func (p *PageResult) SetData(d interface{}) {
 	p.Data = d
 }
 
-func (p *PageResult) Init(page ...Page) {
-	if page != nil {
-		p.Page = page[0]
+func (p *PageResult) Init(page ...interface{}) {
+	// default
+	p.Page = Page{
+		Current:  1,
+		PageSize: DefaultPageSize,
 	}
 
-	if p.PageSize <= 0 {
-		p.PageSize = DefaultPageSize
-	}
-	if p.Page.Current <= 0 {
-		p.Current = 1
+	if page != nil {
+		switch v := page[0].(type) {
+		case Page:
+			p.Page = v
+		case *url.URL:
+			query := v.Query()
+			current, _ := strconv.Atoi(query.Get("current"))
+			if current <= 0 {
+				current = 1
+			}
+			p.Current = current
+
+			pageSize, _ := strconv.Atoi(query.Get("pageSize"))
+			switch {
+			case pageSize > 50:
+				pageSize = 50
+			case pageSize <= 0:
+				pageSize = DefaultPageSize
+			}
+			p.PageSize = pageSize
+		}
 	}
 }
 
@@ -34,22 +60,6 @@ type Page struct {
 
 func (p *Page) GetOffset() int {
 	return p.PageSize * (p.Current - 1)
-}
-
-const DefaultPageSize = 20
-
-func (p *Page) DefaultSize(pageSize int) Page {
-	if p.PageSize <= 0 {
-		p.PageSize = pageSize
-	}
-
-	return *p
-}
-
-func (p *Page) SetSize(pageSize int) *Page {
-	p.PageSize = pageSize
-
-	return p
 }
 
 // SinglePageResult 单页结果

@@ -1,7 +1,9 @@
 package fire
 
 import (
+	"gorm.io/gorm/clause"
 	"net/url"
+	"strconv"
 	"strings"
 	"unicode"
 )
@@ -35,4 +37,32 @@ func If(isA bool, a, b interface{}) interface{} {
 	}
 
 	return b
+}
+
+func ParseDataType(data string) interface{} {
+	float, err := strconv.ParseFloat(data, 64)
+	if err != nil {
+		// string
+		return data
+	}
+	// 46 = byte('.')
+	if strings.IndexByte(data, 46) != -1 {
+		// float
+		return float
+	}
+
+	// int
+	return int64(float)
+}
+
+func ParseColumn(c interface{}) (col clause.Column) {
+	switch v := c.(type) {
+	case clause.Column:
+		col = v
+	case string:
+		col.Table = clause.CurrentTable
+		col.Name = v
+	}
+
+	return col
 }

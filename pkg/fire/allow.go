@@ -7,95 +7,123 @@ package fire
 import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"net/url"
 	"strings"
 )
 
+type Filtered []interface{}
+
 type Allow struct {
 	// where
-	Where []string
-	Range []string
-	In    []string
-	Like  []string
+	Where Filtered
+	Range Filtered
+	In    Filtered
+	Like  Filtered
 
 	// order
-	Sorts []string
+	Sorts Filtered
 }
 
 // AllowSort allow sort
-func (a *Allow) AllowSort(sort url.Values, db *Fire) *Fire {
-	v := sort["sort"]
-	if v == nil || len(v) <= 0 {
-		return db
-	}
-	m := make(map[string]string)
-	if err := json.Unmarshal([]byte(v[0]), &m); err != nil || len(m) <= 0 {
-		return db
-	}
-	if err := validator.New().Var(m, "omitempty,max=1,dive,keys,required,endkeys,eq=ascend|eq=descend"); err != nil {
-		return db
-	}
-	for _, condItem := range a.Sorts {
-		for column, value := range m {
-			if caColumn := Camel2Case(column); caColumn == condItem {
-				db = db.OrderByColumn(caColumn, If(strings.HasPrefix(value, string(OrderAsc)), OrderAsc, OrderDesc).(OrderType))
-			}
+func (a *Allow) AllowSort(params url.Values, db *gorm.DB) *gorm.DB {
+	param := make(url.Values)
+	for _, item := range params["sort"] {
+		m := make(map[string]string)
+		if err := json.Unmarshal([]byte(item), &m); err != nil || len(m) <= 0 {
+			continue
+		}
+		if err := validator.New().Var(m, "omitempty,max=1,dive,keys,required,endkeys,eq=ascend|eq=descend"); err != nil {
+			continue
+		}
+		for k, v := range m {
+			param.Set(k, v)
 		}
 	}
+
+	a.Filtered(param, a.Sorts, func(column clause.Column, value []string) {
+		exp := If(strings.HasPrefix(value[0], string(OrderAsc)), OrderAsc, OrderDesc).(OrderType)
+		db = db.Order(Order(column, exp))
+	})
 
 	return db
 }
 
 // AllowParams allow params
-func (a *Allow) AllowParams(params url.Values, db *Fire) *Fire {
+func (a *Allow) AllowParams(params url.Values, db *gorm.DB) *gorm.DB {
 	// used Allow.key loop: fixed SQL order, we can put the condition of low energy consumption in the front
 	// not used Params loop: range map is no order, it may result in different SQL generated each time
 
-	toCamel2Case(params)
-
-	// where
-	for _, condItem := range a.Where {
-		for column, value := range params {
-			if column == condItem {
-				if len(value) >= 1 {
-					db = db.WhereCompare(column, value[0])
+	//where
+	a.Filtered(params, a.Where, func(column clause.Column, value []string) {
+		for _, v := range value {
+			// json
+			if strings.HasPrefix(v, "{") && strings.HasSuffix(v, "}") {
+				var m map[string]interface{}
+				if err := json.Unmarshal([]byte(v), &m); err == nil {
+					for k, ve := range m {
+						// column.key = ?
+						db = db.Clauses(WhereJsonEq(column, ve, k))
+					}
 				}
+				continue
 			}
+			// column = ?
+			db = db.Clauses(WhereCompare(column, v, CompareEq))
 		}
-	}
+	})
 
 	// Range
-	for _, condItem := range a.Range {
-		for column, value := range params {
-			if column == condItem {
-				if len(value) >= 2 {
-					db = db.WhereRange(column, value[0], value[1])
-				}
-			}
+	a.Filtered(params, a.Range, func(column clause.Column, value []string) {
+		if len(value) >= 2 {
+			//  column >= ? AND column <= ?
+			db = db.Clauses(WhereRange(column, value[0], value[1]))
 		}
-	}
+	})
 
 	// In
-	for _, condItem := range a.In {
-		for column, value := range params {
-			if column == condItem {
-				db = db.WhereIn(column, value)
-			}
-		}
-	}
+	a.Filtered(params, a.In, func(column clause.Column, value []string) {
+		// column IN (?)
+		db = db.Clauses(WhereIn(column, value))
+	})
 
-	// condItem: mkt_roads.name
-	// column:road		value: {"name":"11"}
 	// Like
-	for _, condItem := range a.Like {
-		for column, value := range params {
-			if column == condItem {
-				if len(value) >= 1 {
-					db = db.WhereLike(column, value[0])
-				}
-			}
+	a.Filtered(params, a.Like, func(column clause.Column, value []string) {
+		for _, v := range value {
+			// column LIKE %?%
+			db = db.Clauses(WhereLike(column, v))
 		}
-	}
+	})
 
 	return db
+}
+
+func (a *Allow) ParseColumns(columns []interface{}) (res []clause.Column) {
+	for _, column := range columns {
+		var col clause.Column
+		switch v := column.(type) {
+		case clause.Column:
+			col = v
+		case string:
+			col.Name = v
+		}
+
+		if col.Table == "" {
+			col.Table = clause.CurrentTable
+		}
+		res = append(res, col)
+	}
+	return
+}
+
+func (a *Allow) Filtered(params url.Values, f Filtered, callBack func(column clause.Column, value []string)) {
+	for _, arrowColumn := range a.ParseColumns(f) {
+		for param, value := range params {
+			if (param == arrowColumn.Name && arrowColumn.Alias == "") || (param == arrowColumn.Alias && arrowColumn.Alias != "") {
+				arrowColumn.Alias = ""
+				callBack(arrowColumn, value)
+			}
+		}
+	}
 }

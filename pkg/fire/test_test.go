@@ -60,7 +60,10 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 		}, // 表名不加复数s
 	}
 	dbDSN := os.Getenv("GORM_DSN")
-	switch os.Getenv("GORM_DIALECT") {
+	gormDialect := os.Getenv("GORM_DIALECT")
+	dbDSN = "user=postgres password=dAbia22gdiaxemNHsgy dbname=test host=81.69.244.188 port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	gormDialect = "postgres"
+	switch gormDialect {
 	case "mysql":
 		log.Println("testing mysql...")
 		if dbDSN == "" {
@@ -81,7 +84,7 @@ func OpenTestConnection() (db *gorm.DB, err error) {
 		// CREATE DATABASE gorm;
 		// USE gorm;
 		// CREATE USER gorm FROM LOGIN gorm;
-		// sp_changedbowner 'gorm';
+		// sp_changedbowner 'gorm';w
 		// npm install -g sql-cli
 		// mssql -u gorm -p LoremIpsum86 -d gorm -o 9930
 		log.Println("testing sqlserver...")
@@ -176,11 +179,11 @@ func RunMigrations() {
 	DB.Save(&users)
 
 	res := []string{
-		fmt.Sprintf("INSERT INTO `company` (`created_at`,`updated_at`,`deleted_at`,`address`,`name`) VALUES (%d,%d,'0','Shanghai','dong'),(%d,%d,'0','Shanghai','dong') ON DUPLICATE KEY UPDATE `id`=`id`", users[0].Company.CreatedAt, users[0].Company.UpdatedAt, users[1].Company.CreatedAt, users[1].Company.UpdatedAt),
-		"INSERT INTO `card` (`user_id`,`number`) VALUES (1,1),(2,2),(3,3),(4,4) ON DUPLICATE KEY UPDATE `user_id`=VALUES(`user_id`)",
-		"INSERT INTO `language` (`name`) VALUES ('ZH'),('EN'),('ZH') ON DUPLICATE KEY UPDATE `id`=`id`",
-		"INSERT INTO `user_languages` (`user_id`,`language_id`) VALUES (1,1),(1,2),(2,3) ON DUPLICATE KEY UPDATE `user_id`=`user_id`",
-		"INSERT INTO `user` (`company_id`,`name`,`tag`,`age`,`height`) VALUES (1,'Wang','student',18,185),(2,'Zhang','student',20,180),(1,'Li','teacher',30,155),(2,'Liu','boss',35,175) ON DUPLICATE KEY UPDATE `company_id`=VALUES(`company_id`),`name`=VALUES(`name`),`tag`=VALUES(`tag`),`age`=VALUES(`age`),`height`=VALUES(`height`)",
+		fmt.Sprintf(`INSERT INTO "company" ("created_at","updated_at","address","name") VALUES (%d,%d,'Shanghai','dong'),(%d,%d,'Shanghai','dong') ON CONFLICT DO NOTHING RETURNING "id"`, users[0].Company.CreatedAt, users[0].Company.UpdatedAt, users[1].Company.CreatedAt, users[1].Company.UpdatedAt),
+		`INSERT INTO "card" ("user_id","number") VALUES (1,1),(2,2),(3,3),(4,4) ON CONFLICT ("id") DO UPDATE SET "user_id"="excluded"."user_id" RETURNING "id"`,
+		`INSERT INTO "language" ("name") VALUES ('ZH'),('EN'),('ZH') ON CONFLICT DO NOTHING RETURNING "id"`,
+		`INSERT INTO "user_languages" ("user_id","language_id") VALUES (1,1),(1,2),(2,3) ON CONFLICT DO NOTHING`,
+		`INSERT INTO "user" ("company_id","name","tag","age","height") VALUES (1,'Wang','student',18,185),(2,'Zhang','student',20,180),(1,'Li','teacher',30,155),(2,'Liu','boss',35,175) ON CONFLICT ("id") DO UPDATE SET "company_id"="excluded"."company_id","name"="excluded"."name","tag"="excluded"."tag","age"="excluded"."age","height"="excluded"."height" RETURNING "id"`,
 	}
 	for key, item := range res {
 		if sql := DB.Logger.(*fire.Diary).LastSql(len(res) - key); sql != item {
