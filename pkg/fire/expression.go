@@ -34,6 +34,7 @@ type CompareType string
 
 const (
 	CompareEq  CompareType = "="
+	CompareNeq CompareType = "<>"
 	CompareGte CompareType = ">="
 	CompareGt  CompareType = ">"
 	CompareLte CompareType = "<="
@@ -50,6 +51,8 @@ func WhereCompare(column interface{}, value interface{}, compare ...CompareType)
 	switch c {
 	case CompareEq:
 		exp = clause.Eq{Column: col, Value: value}
+	case CompareNeq:
+		exp = clause.Neq{Column: col, Value: value}
 	case CompareGte:
 		exp = clause.Gte{Column: col, Value: value}
 	case CompareGt:
