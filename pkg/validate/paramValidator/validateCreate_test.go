@@ -5,7 +5,7 @@
 package paramValidator_test
 
 import (
-	"github.com/lifegit/go-gulu/v2/pkg/paramValidator"
+	"github.com/lifegit/go-gulu/v2/pkg/validate/paramValidator"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

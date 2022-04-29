@@ -13,11 +13,11 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.66.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-openapi/spec v0.19.14
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
-	github.com/go-playground/validator/v10 v10.10.1
+	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/imdario/mergo v0.3.12

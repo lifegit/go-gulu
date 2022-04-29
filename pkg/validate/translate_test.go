@@ -1,9 +1,9 @@
-package translate_test
+package validate_test
 
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/lifegit/go-gulu/v2/pkg/out"
-	"github.com/lifegit/go-gulu/v2/pkg/translate"
+	"github.com/lifegit/go-gulu/v2/pkg/validate"
 	"github.com/stretchr/testify/assert"
 	"io"
 	"net/http"
@@ -11,11 +11,11 @@ import (
 	"testing"
 )
 
-type User struct {
+type Staff struct {
 	Computer Computer `json:"computer"`
 	ID       int64    `binding:"required" label:"id" json:"id"`
 	Name     string   `binding:"required" label:"姓名" json:"name"`
-	Phone    string   `binding:"required,numeric,len=11,startswith=1" label:"手机号" json:"phone"`
+	JobNum   string   `binding:"required,len=8,startswith=TD" label:"工号" json:"job"`
 }
 
 type Computer struct {
@@ -33,8 +33,8 @@ func TestGin(t *testing.T) {
 	router := gin.New()
 	router.POST("/", func(c *gin.Context) {
 		// gin
-		var param User
-		errs, first := translate.Translate(c.ShouldBind(&param))
+		var param Staff
+		errs, first := validate.Translate(c.ShouldBind(&param))
 		if out.HandleError(c, first, errs) {
 			return
 		}
@@ -45,8 +45,8 @@ func TestGin(t *testing.T) {
 
 	// client
 	client := &http.Client{}
-	res, _ := client.Post(`http://127.0.0.1:9993`, "application/json", strings.NewReader(`{"id":123,"phone":"2130000000","computer":{"system":{"os":"win","version":11}}}`))
+	res, _ := client.Post(`http://127.0.0.1:9993`, "application/json", strings.NewReader(`{"id":123,"job":"1TD000002","computer":{"system":{"os":"win","version":11}}}`))
 	robots, _ := io.ReadAll(res.Body)
 
-	assert.Equal(t, string(robots), `{"data":{"computer.price":"价格为必填字段","computer.system.os":"操作系统必须是[mac linux]中的一个","computer.system.version":"版本必须小于或等于10","name":"姓名为必填字段","phone":"手机号长度必须是11个字符"},"msg":"操作系统必须是[mac linux]中的一个"}`)
+	assert.Equal(t, string(robots), `{"data":{"computer.price":"价格为必填字段","computer.system.os":"操作系统必须是[mac linux]中的一个","computer.system.version":"版本必须小于或等于10","job":"工号长度必须是8个字符","name":"姓名为必填字段"},"msg":"操作系统必须是[mac linux]中的一个"}`)
 }
