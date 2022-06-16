@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/10 下午3:56
- */
 package chromedpm
 
 import (

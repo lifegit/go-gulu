@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-11-7 12:56 上午
- */
 package dateTime
 
 import (

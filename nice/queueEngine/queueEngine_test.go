@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/29 下午3:27
- */
 package queueEngine_test
 
 import (
@@ -13,8 +9,6 @@ import (
 
 func TestQue(t *testing.T) {
 	Que()
-
-	<-time.After(time.Hour)
 }
 
 func BenchmarkQue(t *testing.B) {
@@ -24,21 +18,22 @@ func BenchmarkQue(t *testing.B) {
 }
 
 func Que() {
-	qu := queueEngine.NewEngine(1)
+	qu := queueEngine.NewEngine(2)
 
-	qu.Customer(func(queue queueEngine.Queue) (b bool) {
-		fmt.Println("receive start", queue)
+	go func() {
+		for key, _ := range make([]int, 10) {
+			data := queueEngine.Queue{Data: fmt.Sprintf("第%d个", key+1)}
+			qu.Producer(data)
+			fmt.Println("send", data)
+		}
+
+		qu.ProducerFinish()
+	}()
+
+	qu.CustomerWait(func(queue queueEngine.Queue) (b bool) {
 		time.Sleep(time.Second)
 		b = time.Now().UnixNano()%2 == 0
 		fmt.Println("receive ok", queue, b)
 		return
 	})
-
-	for key, _ := range make([]int, 3) {
-		data := queueEngine.Queue{Data: fmt.Sprintf("第%d个", key+1)}
-		qu.Producer(data)
-		fmt.Println("send", data)
-	}
-
-	qu.ProducerFinish()
 }

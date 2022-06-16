@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/18 下午3:36
- */
 package koa
 
 import "math"

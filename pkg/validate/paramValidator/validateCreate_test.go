@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/17 下午7:03
- */
 package paramValidator_test
 
 import (

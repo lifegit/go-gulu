@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-2-26 6:30 上午
- */
 package core_test
 
 import (

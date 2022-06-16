@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/7/17 下午4:42
- */
 package main
 
 import (
