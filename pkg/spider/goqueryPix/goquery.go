@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/17 下午5:42
- */
 package goqueryPix
 
 import (

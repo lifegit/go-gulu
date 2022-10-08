@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/17 下午1:10
- */
 package arrayconv_test
 
 import (

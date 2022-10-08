@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/19 下午4:12
- */
 package goqueryPix_test
 
 import (
@@ -13,8 +9,8 @@ import (
 )
 
 var doc = `
-  <ul class="general-item-wrap"> 
-   <li class="intro-item"> <span class="title">类型</span> <span class="content">出租   </span> </li> 
+  <ul class="general-item-wrap">
+   <li class="intro-item"> <span class="title">类型</span> <span class="content">出租   </span> </li>
    <li class="intro-item"> <span class="title">名称</span> <span class="content">公寓 		</span> </li>
   </ul>
 `
@@ -24,13 +20,9 @@ type Pix struct {
 	Name string
 }
 
-var success Pix
-
-func init() {
-	success = Pix{
-		Type: "出租",
-		Name: "公寓",
-	}
+var success = Pix{
+	Type: "出租",
+	Name: "公寓",
 }
 
 func TestSelectionPixList(t *testing.T) {

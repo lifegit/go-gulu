@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/7/23 下午5:49
- */
 package main_test
 
 import (
@@ -21,6 +17,3 @@ func TestName(t *testing.T) {
 	})
 	fmt.Println(err)
 }
-
-
-

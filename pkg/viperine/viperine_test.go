@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/28 下午4:10
- */
 package viperine_test
 
 import (

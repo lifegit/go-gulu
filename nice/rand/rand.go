@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-2-25 9:00 下午
- */
 package rand
 
 import (
@@ -30,8 +26,12 @@ func Ints(from, to, size int) []int {
 	return ret
 }
 
-const SeedNum = "0123456789"
-const SeedAll = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const (
+	SeedNum          = "0123456789"
+	SeedEnglishUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	SeedEnglishLower = "abcdefghijklmnopqrstuvwxyz"
+	SeedAll          = SeedEnglishUpper + SeedEnglishLower + SeedEnglishLower
+)
 
 // 返回指定长度的随机字符串['a'，'z']
 func String(seed string, length int) string {

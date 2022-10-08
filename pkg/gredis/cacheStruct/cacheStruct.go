@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-2-25 9:00 下午
- */
 package cacheStruct
 
 import (
@@ -21,7 +17,7 @@ type CacheStruct struct {
 
 func New(key string, c *redis.Client, expiration ...time.Duration) *CacheStruct {
 	e := time.Second * 180
-	if expiration != nil{
+	if expiration != nil {
 		e = expiration[0]
 	}
 	return &CacheStruct{

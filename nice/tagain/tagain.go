@@ -1,12 +1,8 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/1 上午10:54
- */
 package tagain
 
 import "time"
 
-// 一个重试组件
+// TryAgain 一个重试组件
 type TryAgain int
 
 const (

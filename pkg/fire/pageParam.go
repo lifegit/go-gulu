@@ -3,38 +3,55 @@
 
 package fire
 
-// Param 筛选、排序参数
-type Param struct {
-	Params Params `form:"params" json:"params"`
-	Sort   Sort   `form:"sort" json:"sort" binding:"omitempty,max=1,dive,keys,required,endkeys,eq=ascend|eq=descend"`
-}
+import (
+	"net/url"
+	"strconv"
+)
 
-// PageParam 分页参数
-type PageParam struct {
-	Page
-	Param
-}
+var DefaultPageSize = 5
 
 // PageResult 分页结果
+// https://gorm.io/docs/scopes.html#Pagination
 type PageResult struct {
 	Page
 	Total int64       `json:"total"`
 	Data  interface{} `json:"data"`
 }
 
-func (p *PageResult) Init(page ...Page) {
-	if page != nil {
-		p.Page = page[0]
-	}
-
-	if p.PageSize <= 0 {
-		p.PageSize = DefaultPageSize
-	}
-	if p.Page.Current <= 0 {
-		p.Current = 1
-	}
+func (p *PageResult) SetData(d interface{}) {
+	p.Data = d
 }
 
+func (p *PageResult) Init(page ...interface{}) {
+	// default
+	p.Page = Page{
+		Current:  1,
+		PageSize: DefaultPageSize,
+	}
+
+	if page != nil {
+		switch v := page[0].(type) {
+		case Page:
+			p.Page = v
+		case *url.URL:
+			query := v.Query()
+			current, _ := strconv.Atoi(query.Get("current"))
+			if current <= 0 {
+				current = 1
+			}
+			p.Current = current
+
+			pageSize, _ := strconv.Atoi(query.Get("pageSize"))
+			switch {
+			case pageSize > 50:
+				pageSize = 50
+			case pageSize <= 0:
+				pageSize = DefaultPageSize
+			}
+			p.PageSize = pageSize
+		}
+	}
+}
 
 type Page struct {
 	Current  int `json:"current" form:"current"`
@@ -45,17 +62,7 @@ func (p *Page) GetOffset() int {
 	return p.PageSize * (p.Current - 1)
 }
 
-const DefaultPageSize = 20
-func (p *Page) DefaultSize(pageSize int) Page {
-	if p.PageSize <= 0 {
-		p.PageSize = pageSize
-	}
-
-	return *p
-}
-
-func (p *Page) SetSize(pageSize int) *Page {
-	p.PageSize = pageSize
-
-	return p
+// SinglePageResult 单页结果
+type SinglePageResult struct {
+	Data interface{} `json:"data"`
 }

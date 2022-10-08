@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/29 下午2:38
- */
 package queueEngine
 
 import (
@@ -16,7 +12,7 @@ type Queue struct {
 }
 type Fail struct {
 	Wait   time.Duration
-	tryLen int
+	TryLen int
 }
 
 type Engine struct {
@@ -35,7 +31,7 @@ func NewEngine(chanLen int, fail ...Fail) *Engine {
 	} else {
 		f = Fail{
 			Wait:   time.Second * 3,
-			tryLen: 3,
+			TryLen: 3,
 		}
 	}
 	// queueChan
@@ -84,31 +80,33 @@ func (e *Engine) Len() int {
 }
 
 // 消费
-func (e *Engine) Customer(callback func(Queue) bool, finishCallbacks ...func()) {
+func (e *Engine) CustomerWait(callback func(Queue) bool) {
 	closeProducer := false
 
-	go func() {
-		for {
-			select {
-			case <-e.close:
-				closeProducer = true
-			case message := <-e.data:
-				if res := callback(message); !res {
-					if message.FailCount++; message.FailCount <= e.fail.tryLen {
-						// 等待
-						time.Sleep(e.fail.Wait)
-						// 重新入栈
-						e.producer(message)
-					}
+	for {
+		select {
+		case <-e.close:
+			closeProducer = true
+		case message := <-e.data:
+			if res := callback(message); !res {
+				if message.FailCount++; message.FailCount <= e.fail.TryLen {
+					// 等待
+					time.Sleep(e.fail.Wait)
+					// 重新入栈
+					e.producer(message)
 				}
-			}
-
-			if closeProducer && e.producerLen == 0 && len(e.data) == 0 {
-				if finishCallbacks != nil {
-					finishCallbacks[0]()
-				}
-				return
 			}
 		}
+
+		if closeProducer && e.producerLen == 0 && len(e.data) == 0 {
+			return
+		}
+	}
+}
+
+// 消费异步
+func (e *Engine) Customer(callback func(Queue) bool) {
+	go func() {
+		e.CustomerWait(callback)
 	}()
 }

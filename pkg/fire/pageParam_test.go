@@ -8,6 +8,7 @@ import (
 	"github.com/lifegit/go-gulu/v2/pkg/fire"
 	"github.com/lifegit/go-gulu/v2/pkg/out"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/gorm/clause"
 	"net/http"
 	"testing"
 )
@@ -17,24 +18,17 @@ func TestPageParamAllowCrudAllPage(t *testing.T) {
 	// server
 	router := gin.New()
 	router.GET("/", func(c *gin.Context) {
-		// gin
-		var param fire.PageParam
-		err := c.ShouldBind(&param)
-		if out.HandleError(c, err) {
-			return
-		}
-
 		pageResult, err := DBDryRun.
-			Allow(param.Param, fire.Allow{
-				Where: []string{"age"},
-				Like:  []string{"name"},
-				Range: []string{"height"},
-				In:    []string{"tag"},
-				Sorts: []string{"age"},
+			Allow(c.Request.URL.Query(), fire.Allow{
+				Where: fire.Filtered{"age", "age2"}, // age2 not where
+				Like:  fire.Filtered{"name"},
+				Range: fire.Filtered{"height"},
+				In:    fire.Filtered{"tag"},
+				Sorts: fire.Filtered{"age"},
 			}).
-			CrudAllPage(User{CompanyID: 1}, &[]User{}, param.Page)
-		assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(2), "SELECT count(*) FROM `user` WHERE `age` = 18.000000 AND (`height` >= 160.000000 AND `height` <= 190.000000) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Wang%' AND `user`.`company_id` = 1")
-		assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` = 18.000000 AND (`height` >= 160.000000 AND `height` <= 190.000000) AND `tag`  IN ('学生','儿子','青年') AND `name` LIKE '%Wang%' AND `user`.`company_id` = 1 ORDER BY `age` asc LIMIT 5 OFFSET 10")
+			CrudAllPage(User{CompanyID: 1}, &[]User{}, c.Request.URL)
+		assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(2), `SELECT count(*) FROM "user" WHERE "user"."age" = '18' AND "user"."height" >= '160' AND "user"."height" <= '190' AND "user"."tag" IN ('student','youth') AND "user"."name" LIKE '%Wang%' AND "user"."company_id" = 1`)
+		assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(), `SELECT * FROM "user" WHERE "user"."age" = '18' AND "user"."height" >= '160' AND "user"."height" <= '190' AND "user"."tag" IN ('student','youth') AND "user"."name" LIKE '%Wang%' AND "user"."company_id" = 1 ORDER BY "user"."age" LIMIT 5 OFFSET 10`)
 		if out.HandleError(c, err) {
 			return
 		}
@@ -45,7 +39,7 @@ func TestPageParamAllowCrudAllPage(t *testing.T) {
 
 	// client
 	client := &http.Client{}
-	_, _ = client.Get(`http://127.0.0.1:9991/?current=3&pageSize=5&params={"height":[160,190],"name":"Wang","age":18,"tag":["学生","儿子","青年"]}&sort={"age":"ascend"}`)
+	_, _ = client.Get(`http://127.0.0.1:9991/?current=3&pageSize=5&height=160&height=190&name=Wang&age=18&tag=student&tag=youth&sort={"age":"ascend"}`)
 }
 
 // 分页-外建（join）
@@ -54,7 +48,7 @@ func TestPageParamAllowPreloadJoin(t *testing.T) {
 	router := gin.New()
 	router.GET("/", func(c *gin.Context) {
 		// gin
-		var param fire.PageParam
+		var param fire.Page
 		err := c.ShouldBind(&param)
 		if out.HandleError(c, err) {
 			return
@@ -65,18 +59,17 @@ func TestPageParamAllowPreloadJoin(t *testing.T) {
 			Company Company
 		}
 
-
 		pageResult, err := DBDryRun.
-			Allow(param.Param, fire.Allow{
-				Where: []string{"age"},
-				Like:  []string{"user.name", "company.name"},
-				Range: []string{"height"},
-				In:    []string{"tag"},
-				Sorts: []string{"age"},
+			Allow(c.Request.URL.Query(), fire.Allow{
+				Where: fire.Filtered{"age"},
+				Like:  fire.Filtered{"name", clause.Column{Table: "company", Name: "name", Alias: "companyName"}},
+				Range: fire.Filtered{"height"},
+				In:    fire.Filtered{"tag"},
+				Sorts: fire.Filtered{"age"},
 			}).
-			CrudAllPagePreloadJoin(TbUser{}, &[]TbUser{}, param.Page)
-		assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(2), "SELECT count(*) FROM `user` LEFT JOIN `company` `Company` ON `user`.`company_id` = `Company`.`id` WHERE `age` = 18.000000 AND (`height` >= 160.000000 AND `height` <= 190.000000) AND `tag`  IN ('student','儿子','青年') AND `user`.`name` LIKE '%Wang%' AND `company`.`name` LIKE '%Shanghai%'")
-		assert.Equal(t, DBDryRun.Logger.(*Diary).LastSql(), "SELECT `user`.`id`,`user`.`company_id`,`user`.`name`,`user`.`tag`,`user`.`age`,`user`.`height`,`Company`.`created_at` AS `Company__created_at`,`Company`.`updated_at` AS `Company__updated_at`,`Company`.`deleted_at` AS `Company__deleted_at`,`Company`.`id` AS `Company__id`,`Company`.`address` AS `Company__address`,`Company`.`name` AS `Company__name` FROM `user` LEFT JOIN `company` `Company` ON `user`.`company_id` = `Company`.`id` WHERE `age` = 18.000000 AND (`height` >= 160.000000 AND `height` <= 190.000000) AND `tag`  IN ('student','儿子','青年') AND `user`.`name` LIKE '%Wang%' AND `company`.`name` LIKE '%Shanghai%' ORDER BY `age` asc LIMIT 5 OFFSET 10")
+			CrudAllPagePreloadJoin(TbUser{}, &[]TbUser{}, param)
+		assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(2), `SELECT count(*) FROM "user" LEFT JOIN "company" "Company" ON "user"."company_id" = "Company"."id" WHERE "user"."age" = '18' AND "user"."height" >= '160' AND "user"."height" <= '190' AND "user"."tag" IN ('student','youth') AND "user"."name" LIKE '%Wang%' AND "company"."name" LIKE '%Shanghai%'`)
+		assert.Equal(t, DBDryRun.Logger.(*fire.Diary).LastSql(), `SELECT "user"."id","user"."company_id","user"."name","user"."tag","user"."age","user"."height","Company"."created_at" AS "Company__created_at","Company"."updated_at" AS "Company__updated_at","Company"."deleted_at" AS "Company__deleted_at","Company"."id" AS "Company__id","Company"."address" AS "Company__address","Company"."name" AS "Company__name" FROM "user" LEFT JOIN "company" "Company" ON "user"."company_id" = "Company"."id" WHERE "user"."age" = '18' AND "user"."height" >= '160' AND "user"."height" <= '190' AND "user"."tag" IN ('student','youth') AND "user"."name" LIKE '%Wang%' AND "company"."name" LIKE '%Shanghai%' ORDER BY "user"."age" LIMIT 5 OFFSET 10`)
 		if out.HandleError(c, err) {
 			return
 		}
@@ -87,7 +80,7 @@ func TestPageParamAllowPreloadJoin(t *testing.T) {
 
 	// client
 	client := &http.Client{}
-	_, _ = client.Get(`http://127.0.0.1:9992/?current=3&pageSize=5&params={"height":[160,190],"user.name":"Wang","company.name":"Shanghai","age":18,"tag":["student","儿子","青年"]}&sort={"age":"ascend"}`)
+	_, _ = client.Get(`http://127.0.0.1:9992/?current=3&pageSize=5&height=160&height=190&name=Wang&companyName=Shanghai&age=18&tag=student&tag=youth&sort={"age":"ascend"}`)
 }
 
 //分页-外键（多次查询）
@@ -96,7 +89,7 @@ func TestPageParamAllowPreloadAll(t *testing.T) {
 	router := gin.New()
 	router.GET("/", func(c *gin.Context) {
 		// gin
-		var param fire.PageParam
+		var param fire.Page
 		err := c.ShouldBind(&param)
 		if out.HandleError(c, err) {
 			return
@@ -108,17 +101,17 @@ func TestPageParamAllowPreloadAll(t *testing.T) {
 		}
 
 		pageResult, err := DB.
-			Allow(param.Param, fire.Allow{
-				Where: []string{"age"},
-				Like:  []string{"user.name", "company.name"}, // company.name not support
-				Range: []string{"height"},
-				In:    []string{"tag"},
-				Sorts: []string{"age"},
+			Allow(c.Request.URL.Query(), fire.Allow{
+				Where: fire.Filtered{"age"},
+				Like:  fire.Filtered{"name", clause.Column{Table: "company", Name: "name", Alias: "companyName"}}, // company.name not support
+				Range: fire.Filtered{"height"},
+				In:    fire.Filtered{"tag"},
+				Sorts: fire.Filtered{"age"},
 			}).
-			CrudAllPagePreloadAll(TbUser{}, &[]TbUser{}, param.Page.DefaultSize(30))
-		assert.Equal(t, DB.Logger.(*Diary).LastSql(3), "SELECT count(*) FROM `user` WHERE `age` = 18.000000 AND (`height` >= 160.000000 AND `height` <= 190.000000) AND `tag`  IN ('student','儿子','青年') AND `user`.`name` LIKE '%Wang%'")
-		assert.Equal(t, DB.Logger.(*Diary).LastSql(2), "SELECT * FROM `company` WHERE `company`.`id` = 1 AND `company`.`deleted_at` = 0")
-		assert.Equal(t, DB.Logger.(*Diary).LastSql(), "SELECT * FROM `user` WHERE `age` = 18.000000 AND (`height` >= 160.000000 AND `height` <= 190.000000) AND `tag`  IN ('student','儿子','青年') AND `user`.`name` LIKE '%Wang%' ORDER BY `age` asc LIMIT 30")
+			CrudAllPagePreloadAll(TbUser{}, &[]TbUser{}, param)
+		assert.Equal(t, DB.Logger.(*fire.Diary).LastSql(3), `SELECT count(*) FROM "user" WHERE "user"."age" = '18' AND "user"."height" >= '160' AND "user"."height" <= '190' AND "user"."tag" IN ('student','youth') AND "user"."name" LIKE '%Wang%'`)
+		assert.Equal(t, DB.Logger.(*fire.Diary).LastSql(2), `SELECT * FROM "company" WHERE "company"."id" = 1 AND "company"."deleted_at" = 0`)
+		assert.Equal(t, DB.Logger.(*fire.Diary).LastSql(), `SELECT * FROM "user" WHERE "user"."age" = '18' AND "user"."height" >= '160' AND "user"."height" <= '190' AND "user"."tag" IN ('student','youth') AND "user"."name" LIKE '%Wang%' ORDER BY "user"."age" LIMIT 30`)
 		if out.HandleError(c, err) {
 			return
 		}
@@ -129,5 +122,5 @@ func TestPageParamAllowPreloadAll(t *testing.T) {
 
 	// client
 	client := &http.Client{}
-	_, _ = client.Get(`http://127.0.0.1:9993/?params={"height":[160,190],"user.name":"Wang","age":18,"tag":["student","儿子","青年"]}&sort={"age":"ascend"}`)
+	_, _ = client.Get(`http://127.0.0.1:9993/?pageSize=30&height=160&height=190&name=Wang&age=18&tag=student&tag=youth&sort={"age":"ascend"}`)
 }

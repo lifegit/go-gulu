@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-2-25 9:00 下午
- */
 package mobileCode
 
 import (
@@ -13,7 +9,6 @@ type MobileMes struct {
 	Mobile string
 	Code   string
 }
-
 
 func tag(tag, mobile string) string {
 	return tag + mobile

@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020-3-19 4:03 上午
- */
 package eventGroup_test
 
 import (

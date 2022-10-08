@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/17 下午5:15
- */
 package main_test
 
 import (
@@ -9,6 +5,7 @@ import (
 	"github.com/lifegit/go-gulu/v2/nice/statisticsLine/app"
 	"testing"
 )
+
 //go:generate ./main -p ./ -e /node_modules,/.umi -s .go
 func TestStatisticsLine(t *testing.T) {
 	line := app.StatisticsLine{

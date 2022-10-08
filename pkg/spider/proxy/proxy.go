@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/6/1 上午10:04
- */
 package proxy
 
 import "fmt"

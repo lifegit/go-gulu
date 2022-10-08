@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/5/21 下午3:39
- */
 package ipPool
 
 import (

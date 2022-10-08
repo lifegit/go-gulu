@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/7/22 下午4:18
- */
 package app
 
 import (
@@ -10,7 +6,6 @@ import (
 )
 
 var line StatisticsLine
-
 
 var RestCmd = &cobra.Command{
 	Use:     "statisticsLine",
@@ -27,4 +22,3 @@ func init() {
 	RestCmd.Flags().StringSliceVarP(&line.ExcludeDirs, "excludeDirs", "e", []string{}, "exclude directory")
 	RestCmd.Flags().StringVarP(&line.SuffixName, "suffixName", "s", ".go", "extended name")
 }
-

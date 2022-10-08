@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/7/23 上午10:52
- */
 package app
 
 import (
@@ -96,7 +92,7 @@ func BuildV2(config *gen.Config, s *spec.Swagger) (res []byte, err error) {
 	if err != nil {
 		return
 	}
-	swaggerV2,err = ReplaceSpot(swaggerV2)
+	swaggerV2, err = ReplaceSpot(swaggerV2)
 	if err != nil {
 		return
 	}

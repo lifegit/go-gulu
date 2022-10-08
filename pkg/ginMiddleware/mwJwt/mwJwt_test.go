@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2021/7/9 下午5:34
- */
 package mwJwt_test
 
 import (

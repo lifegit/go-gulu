@@ -13,16 +13,19 @@ require (
 	github.com/fsnotify/fsnotify v1.4.9
 	github.com/getkin/kin-openapi v0.66.0
 	github.com/ghodss/yaml v1.0.0
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.7.7
 	github.com/go-openapi/spec v0.19.14
-	github.com/go-playground/validator/v10 v10.4.1
+	github.com/go-playground/locales v0.14.0
+	github.com/go-playground/universal-translator v0.18.0
+	github.com/go-playground/validator/v10 v10.10.0
 	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gocolly/colly/v2 v2.1.0
-	github.com/iancoleman/strcase v0.1.3
+	github.com/iancoleman/strcase v0.2.0
 	github.com/imdario/mergo v0.3.12
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/jinzhu/gorm v1.9.16
 	github.com/jinzhu/inflection v1.0.0
-	github.com/kr/pretty v0.2.0 // indirect
+	github.com/jonboulle/clockwork v0.2.3 // indirect
 	github.com/lestrrat-go/file-rotatelogs v2.4.0+incompatible
 	github.com/lestrrat-go/strftime v1.0.4 // indirect
 	github.com/mattn/go-sqlite3 v2.0.1+incompatible // indirect
@@ -40,12 +43,14 @@ require (
 	github.com/swaggo/gin-swagger v1.3.0
 	github.com/swaggo/swag v1.7.0
 	github.com/wenzhenxi/gorsa v0.0.0-20210524035706-528c7050d703
-	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
-	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gorm.io/driver/mysql v1.1.1
-	gorm.io/driver/postgres v1.1.0
-	gorm.io/driver/sqlite v1.1.4
-	gorm.io/driver/sqlserver v1.0.7
-	gorm.io/gorm v1.21.11
-	gorm.io/plugin/soft_delete v1.0.1
+	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
+	gorm.io/datatypes v1.0.6
+	gorm.io/driver/mysql v1.3.2
+	gorm.io/driver/postgres v1.3.1
+	gorm.io/driver/sqlite v1.3.1
+	gorm.io/driver/sqlserver v1.3.1
+	gorm.io/gorm v1.23.2
+	gorm.io/plugin/soft_delete v1.1.0
 )
+
+replace gorm.io/datatypes v1.0.6 => github.com/lifegit/datatypes v1.0.7

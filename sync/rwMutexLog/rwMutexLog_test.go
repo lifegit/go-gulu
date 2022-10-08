@@ -1,7 +1,3 @@
-/**
-* @Author: TheLife
-* @Date: 2020/11/28 下午2:10
- */
 package rwMutexLog_test
 
 import (
