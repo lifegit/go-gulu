@@ -1,7 +1,10 @@
 package file
 
 import (
+	"github.com/lifegit/go-gulu/v2/conv/arrayconv"
+	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 )
 
@@ -39,6 +42,22 @@ func IsDir(path string) bool {
 	}
 
 	return fio.IsDir()
+}
+
+// 获取文件夹中符合拓展名的文件
+func GetAllFile(pathname string, allowExt []string) (res []string, err error) {
+	rd, err := ioutil.ReadDir(pathname)
+	if err != nil {
+		return
+	}
+
+	for _, item := range rd {
+		if !item.IsDir() && arrayconv.StringIn(path.Ext(item.Name()), allowExt) {
+			fullName := pathname + "/" + item.Name()
+			res = append(res, fullName)
+		}
+	}
+	return
 }
 
 // 将source目录复制到dest目录
